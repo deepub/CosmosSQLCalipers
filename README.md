@@ -14,8 +14,21 @@ This enables developers to get a preview into the overall scalability, response 
 mvn clean install
 ````
 
-## Cosmos SQL client dependency
-Currently relies on the azure-cosmos v3 SDK
+## News
+This section provides the latest updates
+
+### Cosmos SQL client dependency
+CosmosSQLCalipers relies on the azure-cosmos v3 SDK at present
+
+### Test Results
+Following consistency levels are running fine:
+* SESSION
+* EVENTUAL
+
+Following consistency levels are failing:
+* BOUNDED_STALENESS (Creates)
+* CONSISTENCY_PREFIX (Creates)
+
 
 ## Overview
 The utility executes the following workflow:
@@ -25,21 +38,19 @@ The utility executes the following workflow:
 * Executes the query workload based on the operation specified in the input parameters
 * Deletes the documents explicitly at the end of the exercise 
 
-Indexing policy has a significant impact on RU consumption. So for the sake of simplicity, CosmosSQLCalipers deploys a single index for partition key lookups.
-
-Metrics are collected based on the above test cycle and the results are published on the console. The results include:
+Indexing policy has a significant impact on RU consumption. So for the sake of simplicity, CosmosSQLCalipers deploys a single index for partition key lookups. Collected metrics include:
 * Throughput
 * Network latencies
 * RUs consumed
 
-Operations that can be exercised using this tool include:
+Operations that can be exercised using this tool includes:
 1. SQL_ASYNC_PARTITION_KEY_READ: Executes partition key based queries asynchronously  
 1. SQL_SYNC_PARTITION_KEY_READ: Executes partition key based queries synchronously
 1. SQL_ASYNC_POINT_READ: Executes point read operations asynchronously
 1. SQL_SYNC_POINT_READ: Executes point read operations synchronously
-1. ALL_SYNC_OPS: Executes all synchronous read operations in a serial manner. The execution cycle starts with partition key based reads followed by point reads.  
-1. ALL_ASYNC_OPS: Executes all asynchronous read operations in a serial manner. The execution cycle starts with partition key based reads followed by point reads.
-1. SQL_ALL: Executes async partition key read, sync partition key read, async point read and sync point read operations in a serial manner.
+1. ALL_SYNC_OPS: Executes all synchronous read operations serially. The execution cycle starts with partition key based reads followed by point reads.  
+1. ALL_ASYNC_OPS: Executes all asynchronous read operations serially. The execution cycle starts with partition key based reads followed by point reads.
+1. SQL_ALL: Executes async partition key read, sync partition key read, async point read and sync point read operations serially.
 
 ## Instructions
 1. Create a Cosmos DB SQL API account
