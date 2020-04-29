@@ -34,7 +34,6 @@ public class SyncBootstrap implements Bootstrap{
         syncWriteLatency = metrics.histogram("Sync Write Latency (ms)");
         syncThroughput = metrics.meter("Sync Write Throughput");
 
-        log(container.getDatabase().toString());
         log("********************************************************************************************");
         log("Running sync SQL bootstrap workload for " + numberOfDocs + " docs...");
 

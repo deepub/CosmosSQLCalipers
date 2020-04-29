@@ -1,13 +1,15 @@
 package com.cosmoscalipers.driver;
 
+import com.azure.data.cosmos.ConsistencyLevel;
+
 public class BenchmarkConfig {
     private String host;
     private String databaseId;
     private String collectionId;
     private String masterKey;
-    private long numberOfDocuments;
-    private String samplePayload;
-    private String consistencyLevel;
+    private int numberOfDocuments;
+    private int payloadSize;
+    private ConsistencyLevel consistencyLevel;
     private int provisionedRUs;
     private int maxPoolSize;
     private int maxRetryAttempts;
@@ -30,27 +32,27 @@ public class BenchmarkConfig {
         this.masterKey = masterKey;
     }
 
-    public long getNumberOfDocuments() {
+    public int getNumberOfDocuments() {
         return numberOfDocuments;
     }
 
-    public void setNumberOfDocuments(long numberOfDocuments) {
+    public void setNumberOfDocuments(int numberOfDocuments) {
         this.numberOfDocuments = numberOfDocuments;
     }
 
-    public String getSamplePayload() {
-        return samplePayload;
+    public int getPayloadSize() {
+        return payloadSize;
     }
 
-    public void setSamplePayload(String samplePayload) {
-        this.samplePayload = samplePayload;
+    public void setPayloadSize(int payloadSize) {
+        this.payloadSize = payloadSize;
     }
 
-    public String getConsistencyLevel() {
+    public ConsistencyLevel getConsistencyLevel() {
         return consistencyLevel;
     }
 
-    public void setConsistencyLevel(String consistencyLevel) {
+    public void setConsistencyLevel(ConsistencyLevel consistencyLevel) {
         this.consistencyLevel = consistencyLevel;
     }
 

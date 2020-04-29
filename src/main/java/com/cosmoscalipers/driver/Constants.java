@@ -26,4 +26,10 @@ public class Constants {
     public static final String CONST_OPERATION_ALL_SYNC_OPS = "ALL_SYNC_OPS";
     public static final String CONST_OPERATION_ALL_ASYNC_OPS = "ALL_ASYNC_OPS";
 
+    public static final String CONST_CONSISTENCY_LEVEL_STRONG = "STRONG";
+    public static final String CONST_CONSISTENCY_LEVEL_BOUNDED_STALENESS = "BOUNDED_STALENESS";
+    public static final String CONST_CONSISTENCY_LEVEL_SESSION = "SESSION";
+    public static final String CONST_CONSISTENCY_LEVEL_CONSISTENT_PREFIX = "CONSISTENT_PREFIX";
+    public static final String CONST_CONSISTENCY_LEVEL_EVENTUAL = "EVENTUAL";
+
 }

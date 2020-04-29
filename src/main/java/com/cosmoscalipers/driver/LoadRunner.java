@@ -18,29 +18,21 @@ public class LoadRunner {
     private static final MetricRegistry metrics = new MetricRegistry();
     private static final Logger LOGGER = LoggerFactory.getLogger(LoadRunner.class);
 
-    public void execute(CommandLine commandLine) {
+    public void execute(BenchmarkConfig config) {
 
-        int maxPoolSize = Integer.parseInt(commandLine.getOptionValue(Constants.CONST_OPTION_MAX_POOL_SIZE));
-        int maxRetryAttempts = Integer.parseInt(commandLine.getOptionValue(Constants.CONST_OPTION_MAX_RETRY_ATTEMPTS));
-        int retryWaitTimeInSeconds = Integer.parseInt(commandLine.getOptionValue(Constants.CONST_OPTION_MAX_RETRY_WAIT_TIME_IN_SECONDS));
-        int numberOfItems = Integer.parseInt(commandLine.getOptionValue(Constants.CONST_OPTION_NUMBER_OF_DOCS));
-        int payloadSize = Integer.parseInt(commandLine.getOptionValue(Constants.CONST_OPTION_PAYLOAD_SIZE));
-        int provisionedRUs = Integer.parseInt(commandLine.getOptionValue(Constants.CONST_OPTION_PROVISIONED_RUS));
+        int maxPoolSize = config.getMaxPoolSize();
+        int maxRetryAttempts = config.getMaxRetryAttempts();
+        int retryWaitTimeInSeconds = config.getRetryWaitTimeInSeconds();
+        int numberOfItems = config.getNumberOfDocuments();
+        int payloadSize = config.getPayloadSize();
+        int provisionedRUs = config.getProvisionedRUs();
 
-        String hostName = commandLine.getOptionValue(Constants.CONST_OPTION_HOSTNAME);
-        String databaseName = commandLine.getOptionValue(Constants.CONST_OPTION_DATABASE);
-        String collection = commandLine.getOptionValue(Constants.CONST_OPTION_COLLECTION);
-        String masterKey = commandLine.getOptionValue(Constants.CONST_OPTION_KEY);
-        String consistencyLevel = commandLine.getOptionValue(Constants.CONST_OPTION_CONSISTENCY_LEVEL);
-        String operation = commandLine.getOptionValue(Constants.CONST_OPTION_OPERATION);
-
-        if(operation == null || operation.isEmpty() || operation.isBlank()) {
-            operation = Constants.CONST_OPERATION_SQL_ALL;
-        }
-
-        if(payloadSize == 0) {
-            payloadSize = Constants.CONST_MINIMUM_PAYLOAD_SIZE;
-        }
+        String hostName = config.getHost();
+        String databaseName = config.getDatabaseId();
+        String collection = config.getCollectionId();
+        String masterKey = config.getMasterKey();
+        ConsistencyLevel consistencyLevel = config.getConsistencyLevel();
+        String operation = config.getOperation();
 
         CosmosClient client = buildCosmosClient(ConnectionMode.DIRECT, maxPoolSize, maxRetryAttempts,
                 retryWaitTimeInSeconds, hostName, masterKey, consistencyLevel);
@@ -138,7 +130,7 @@ public class LoadRunner {
     }
 
     private static CosmosClient buildCosmosClient(ConnectionMode connectionMode, int maxPoolSize, int maxRetryAttempts,
-                                                  int retryWaitTimeInSeconds, String hostName, String masterKey, String consistencyLevel ) {
+                                                  int retryWaitTimeInSeconds, String hostName, String masterKey, ConsistencyLevel consistencyLevel ) {
 
         ConnectionPolicy connectionPolicy = new ConnectionPolicy();
         connectionPolicy.connectionMode(connectionMode);
@@ -150,13 +142,11 @@ public class LoadRunner {
         retryOptions.maxRetryWaitTimeInSeconds(retryWaitTimeInSeconds);
         connectionPolicy.retryOptions(retryOptions);
 
-        //TODO: Need to assign consistency level
-
         return CosmosClient.builder()
                 .endpoint(hostName)
                 .key(masterKey)
                 .connectionPolicy(connectionPolicy)
-                .consistencyLevel( ConsistencyLevel.SESSION )
+                .consistencyLevel( consistencyLevel )
                 .build();
 
     }

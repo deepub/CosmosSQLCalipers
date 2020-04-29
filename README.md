@@ -1,5 +1,5 @@
 # CosmosSQLCalipers
-CosmosSQLCalipers is a Cosmos SQL API benchmarking utility. It enables developers to model and understand the impact of the following parameters:
+CosmosSQLCalipers is a basic Cosmos SQL API benchmarking utility. It enables developers to model and understand the impact of the following parameters:
 
 + Document sizes
 + Partition key based SELECT queries vs point reads
@@ -14,6 +14,9 @@ This enables developers to get a preview into the overall scalability, response 
 mvn clean install
 ````
 
+## Cosmos SQL client dependency
+Currently relies on the azure-cosmos v3 SDK
+
 ## Overview
 The utility executes the following workflow:
 * Provisions a collection based on input parameters
@@ -22,7 +25,7 @@ The utility executes the following workflow:
 * Executes the query workload based on the operation specified in the input parameters
 * Deletes the documents explicitly at the end of the exercise 
 
-Indexing policy TBD
+Indexing policy has a significant impact on RU consumption. So for the sake of simplicity, CosmosSQLCalipers deploys a single index for partition key lookups.
 
 Metrics are collected based on the above test cycle and the results are published on the console. The results include:
 * Throughput
@@ -65,17 +68,13 @@ usage: Cosmos DB SQL Benchmark
                                         container is created
 ````
 
-## Examples
+## Example 1
 
 ````
 --hostname https://xxx.documents.azure.com:443/ --database demo --collection orders --key xxx --numberofdocs 1000 --payloadSize 500 --consistencylevel SESSION --provisionedrus 400 --maxpoolsize 100 --maxretryattempts 10 --maxretrywaittimeinseconds 1 --operation SQL_ALL
 ````
 
 ````
-host name : https://dbcosmosdemodb.documents.azure.com:443/
-database : demo
-Container orders doesn't exist
-com.azure.data.cosmos.CosmosDatabase@37052337
 ********************************************************************************************
 Running sync SQL bootstrap workload for 1000 docs...
 Running partition key based sync SQL query workload for 1000 docs...
@@ -276,10 +275,16 @@ Sync delete throughput
      5-minute rate = 12.98 events/second
     15-minute rate = 13.25 events/second
 
+````
 
-host name : https://dbcosmosdemodb.documents.azure.com:443/
-database : demo
-com.azure.data.cosmos.CosmosDatabase@a37aefe
+## Example 2
+
+````
+--hostname https://xxx.documents.azure.com:443/ --database demo --collection orders --key xxx --numberofdocs 5000 --payloadSize 500 --consistencylevel SESSION --provisionedrus 400 --maxpoolsize 100 --maxretryattempts 10 --maxretrywaittimeinseconds 1 --operation SQL_ALL
+````
+
+````
+
 ********************************************************************************************
 Running sync SQL bootstrap workload for 5000 docs...
 Running partition key based sync SQL query workload for 5000 docs...
