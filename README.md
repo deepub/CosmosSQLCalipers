@@ -17,17 +17,18 @@ mvn clean install
 ## News
 This section provides the latest updates
 
-### Cosmos SQL client dependency
+#### Cosmos SQL client dependency
 CosmosSQLCalipers relies on the azure-cosmos v3 SDK at present
 
-### Test Results
+#### Test Results
 Following consistency levels are running fine:
+* STRONG
 * SESSION
 * EVENTUAL
 
 Following consistency levels are failing:
-* BOUNDED_STALENESS (Creates)
-* CONSISTENCY_PREFIX (Creates)
+* BOUNDED_STALENESS (Creates fail with timeout exceptions)
+* CONSISTENCY_PREFIX (Creates fail with timeout exceptions)
 
 ## Overview
 The utility executes the following workflow:
