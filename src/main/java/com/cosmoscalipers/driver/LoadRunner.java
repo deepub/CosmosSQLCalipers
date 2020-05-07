@@ -71,16 +71,28 @@ public class LoadRunner {
                 sqlAsyncPointReadWorkload(container, orderIdList, numberOfItems, metrics);
                 break;
 
+            case Constants.CONST_OPERATION_SQL_ASYNC_UPDATE:
+                orderIdList = asyncBootstrap.createDocs(container, numberOfItems, payloadSize, metrics);
+                sqlAsyncUpdateWorkload(container, orderIdList, numberOfItems, metrics);
+                break;
+
+            case Constants.CONST_OPERATION_SQL_SYNC_UPDATE:
+                orderIdList = syncBootstrap.createDocs(container, numberOfItems, payloadSize, metrics);
+                sqlSyncUpdateWorkload(container, orderIdList, numberOfItems, metrics);
+                break;
+
             case Constants.CONST_OPERATION_ALL_SYNC_OPS:
                 orderIdList = syncBootstrap.createDocs(container, numberOfItems, payloadSize, metrics);
                 sqlSyncReadWorkload(container, orderIdList, numberOfItems, metrics);
                 sqlSyncPointReadWorkload(container, orderIdList, numberOfItems, metrics);
+                sqlSyncUpdateWorkload(container, orderIdList, numberOfItems, metrics);
                 break;
 
             case Constants.CONST_OPERATION_ALL_ASYNC_OPS:
                 orderIdList = asyncBootstrap.createDocs(container, numberOfItems, payloadSize, metrics);
                 sqlAsyncReadWorkload(container, orderIdList, numberOfItems, metrics);
                 sqlAsyncPointReadWorkload(container, orderIdList, numberOfItems, metrics);
+                sqlAsyncUpdateWorkload(container, orderIdList, numberOfItems, metrics);
                 break;
 
             case Constants.CONST_OPERATION_SQL_ALL:
@@ -90,6 +102,8 @@ public class LoadRunner {
                 sqlAsyncReadWorkload(container, orderIdList, numberOfItems, metrics);
                 sqlSyncPointReadWorkload(container, orderIdList, numberOfItems, metrics);
                 sqlAsyncPointReadWorkload(container, orderIdList, numberOfItems, metrics);
+                sqlSyncUpdateWorkload(container, orderIdList, numberOfItems, metrics);
+                sqlAsyncUpdateWorkload(container, orderIdList, numberOfItems, metrics);
         }
 
         sqlSyncDeleteWorkload(container, orderIdList, numberOfItems, metrics);
@@ -123,10 +137,18 @@ public class LoadRunner {
         sqlSyncDelete.execute(container, orderIdList, numberOfItems, metrics);
     }
 
-    private static CosmosDatabase getDB(CosmosClient client, String database) {
+    private static void sqlSyncUpdateWorkload(CosmosContainer container, List<String> orderIdList, int numberOfItems, MetricRegistry metrics ) {
+        SQLSyncUpdate sqlSyncUpdate = new SQLSyncUpdate();
+        sqlSyncUpdate.execute(container, orderIdList, numberOfItems, metrics);
+    }
 
-        CosmosDatabase db = client.getDatabase(database);
-        return db;
+    private static void sqlAsyncUpdateWorkload(CosmosContainer container, List<String> orderIdList, int numberOfItems, MetricRegistry metrics ) {
+        SQLAsyncUpdate sqlAsyncUpdate = new SQLAsyncUpdate();
+        sqlAsyncUpdate.execute(container, orderIdList, numberOfItems, metrics);
+    }
+
+    private static CosmosDatabase getDB(CosmosClient client, String database) {
+        return client.getDatabase(database);
     }
 
     private static CosmosClient buildCosmosClient(ConnectionMode connectionMode, int maxPoolSize, int maxRetryAttempts,

@@ -27,7 +27,7 @@ public class SQLSyncDelete implements WorkloadInterface{
     }
 
     private void deleteOps(CosmosContainer container, List<String> orderIdList, int numberOfOps) {
-        log("Running delete workload for " + numberOfOps + " docs...");
+        log("Running sync delete workload for " + numberOfOps + " docs...");
         log("********************************************************************************************");
 
         orderIdList.stream()

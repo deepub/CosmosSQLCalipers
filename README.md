@@ -29,7 +29,6 @@ Following consistency levels are failing:
 * BOUNDED_STALENESS (Creates)
 * CONSISTENCY_PREFIX (Creates)
 
-
 ## Overview
 The utility executes the following workflow:
 * Provisions a collection based on input parameters
@@ -48,8 +47,10 @@ Operations that can be exercised using this tool includes:
 1. SQL_SYNC_PARTITION_KEY_READ: Executes partition key based queries synchronously
 1. SQL_ASYNC_POINT_READ: Executes point read operations asynchronously
 1. SQL_SYNC_POINT_READ: Executes point read operations synchronously
-1. ALL_SYNC_OPS: Executes all synchronous read operations serially. The execution cycle starts with partition key based reads followed by point reads.  
-1. ALL_ASYNC_OPS: Executes all asynchronous read operations serially. The execution cycle starts with partition key based reads followed by point reads.
+1. SQL_ASYNC_UPDATE: Executes update operations asynchronously
+1. SQL_SYNC_UPDATE: Executes update operations synchronously 
+1. ALL_SYNC_OPS: Executes all synchronous operations serially. The execution cycle starts with partition key based reads followed by point reads.  
+1. ALL_ASYNC_OPS: Executes all asynchronous operations serially. The execution cycle starts with partition key based reads followed by point reads.
 1. SQL_ALL: Executes async partition key read, sync partition key read, async point read and sync point read operations serially.
 
 ## Instructions
@@ -82,7 +83,7 @@ usage: Cosmos DB SQL Benchmark
 ## Example 1
 
 ````
---hostname https://xxx.documents.azure.com:443/ --database demo --collection orders --key xxx --numberofdocs 1000 --payloadSize 500 --consistencylevel SESSION --provisionedrus 400 --maxpoolsize 100 --maxretryattempts 10 --maxretrywaittimeinseconds 1 --operation SQL_ALL
+--hostname https://youraccount.documents.azure.com:443/ --database demo --collection orders --key <your account key> --numberofdocs 1000 --payloadSize 500 --consistencylevel SESSION --provisionedrus 400 --maxpoolsize 100 --maxretryattempts 10 --maxretrywaittimeinseconds 1 --operation SQL_ALL
 ````
 
 ````

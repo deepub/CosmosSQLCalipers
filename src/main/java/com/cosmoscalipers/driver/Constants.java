@@ -25,6 +25,8 @@ public class Constants {
     public static final String CONST_OPERATION_SQL_ALL = "SQL_ALL";
     public static final String CONST_OPERATION_ALL_SYNC_OPS = "ALL_SYNC_OPS";
     public static final String CONST_OPERATION_ALL_ASYNC_OPS = "ALL_ASYNC_OPS";
+    public static final String CONST_OPERATION_SQL_SYNC_UPDATE = "SQL_SYNC_UPDATE";
+    public static final String CONST_OPERATION_SQL_ASYNC_UPDATE = "SQL_ASYNC_UPDATE";
 
     public static final String CONST_CONSISTENCY_LEVEL_STRONG = "STRONG";
     public static final String CONST_CONSISTENCY_LEVEL_BOUNDED_STALENESS = "BOUNDED_STALENESS";
