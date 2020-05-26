@@ -30,9 +30,9 @@ public class AsyncBootstrap implements Bootstrap{
     public List<String> createDocs(CosmosContainer container, int numberOfDocs, int payloadSize, MetricRegistry metrics  ) {
 
         List<String> payloadIdList = new ArrayList<String>();
-        successCounter = metrics.counter("Write success counter");
-        failureCounter = metrics.counter("Write failure counter");
-        requestUnits = metrics.histogram("Write RUs");
+        successCounter = metrics.counter("Async write success counter");
+        failureCounter = metrics.counter("Async write failure counter");
+        requestUnits = metrics.histogram("Async write RUs");
         asyncWriteLatency = metrics.histogram("Async write latency (ms)");
         asyncThroughput = metrics.meter("Async write throughput");
 

@@ -28,7 +28,7 @@ public class SQLAsyncPointRead implements WorkloadInterface {
     }
 
     private void readOps(CosmosContainer container, List<String> orderIdList, int numberOfOps) {
-        log("Running point read workload for " + numberOfOps + " docs...");
+        log("Running async point read workload for " + numberOfOps + " docs...");
 
         orderIdList.stream()
                 .forEach(item -> read(container, item));

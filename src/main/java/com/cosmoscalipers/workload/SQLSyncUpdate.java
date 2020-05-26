@@ -20,7 +20,7 @@ public class SQLSyncUpdate {
 
     public void execute(CosmosContainer container, List<String> orderIdList, int numberOfOps, MetricRegistry metrics) {
 
-        sqlSyncUpdateRequestUnits = metrics.histogram("Sync Update RUs");
+        sqlSyncUpdateRequestUnits = metrics.histogram("Sync update RUs");
         sqlSyncUpdateLatency = metrics.histogram("Sync update latency (ms)");
         throughput = metrics.meter("Sync update throughput");
         updateOps(container, orderIdList, numberOfOps);
@@ -46,7 +46,6 @@ public class SQLSyncUpdate {
                 );
 
         cosmosItemResponse = container.getItem(orderId, orderId).read().block().item().replace(payload).block();
-
         sqlSyncUpdateRequestUnits.update( Math.round(cosmosItemResponse.requestCharge()) );
         sqlSyncUpdateLatency.update(cosmosItemResponse.requestLatency().toMillis());
         throughput.mark();

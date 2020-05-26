@@ -3,7 +3,6 @@ package com.cosmoscalipers.driver;
 import com.azure.data.cosmos.*;
 import com.codahale.metrics.ConsoleReporter;
 import com.codahale.metrics.MetricRegistry;
-import org.apache.commons.cli.CommandLine;
 import com.cosmoscalipers.workload.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +44,7 @@ public class LoadRunner {
             throw e;
         }
 
-        ConsoleReporter consoleReporter = startReport();
+        ConsoleReporter reporter = startReport();
         SyncBootstrap syncBootstrap = new SyncBootstrap();
         AsyncBootstrap asyncBootstrap = new AsyncBootstrap();
         List<String> orderIdList = null;
@@ -107,7 +106,7 @@ public class LoadRunner {
         }
 
         sqlSyncDeleteWorkload(container, orderIdList, numberOfItems, metrics);
-        publishMetrics(consoleReporter);
+        publishMetrics(reporter);
         client.close();
     }
 
@@ -211,11 +210,11 @@ public class LoadRunner {
 
 
 
-    private static void publishMetrics(ConsoleReporter consoleReporter) {
+    private static void publishMetrics(ConsoleReporter reporter) {
         try {
             Thread.sleep(5 * 1000);
-            consoleReporter.report();
-            consoleReporter.stop();
+            reporter.report();
+            reporter.stop();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -223,12 +222,12 @@ public class LoadRunner {
     }
 
     private static ConsoleReporter startReport() {
-        ConsoleReporter consoleReporter = ConsoleReporter.forRegistry(metrics)
+        ConsoleReporter reporter = ConsoleReporter.forRegistry(metrics)
                 .convertRatesTo(TimeUnit.SECONDS)
                 .convertDurationsTo(TimeUnit.MILLISECONDS)
                 .build();
 
-        return consoleReporter;
+        return reporter;
     }
 
 }

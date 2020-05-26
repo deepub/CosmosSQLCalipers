@@ -28,11 +28,11 @@ public class SyncBootstrap implements Bootstrap{
     public List<String> createDocs(CosmosContainer container, int numberOfDocs, int payloadSize, MetricRegistry metrics  ) {
 
         List<String> payloadIdList = new ArrayList<String>();
-        successCounter = metrics.counter("Write success counter");
-        failureCounter = metrics.counter("Write failure counter");
-        requestUnits = metrics.histogram("Write RUs");
-        syncWriteLatency = metrics.histogram("Sync Write Latency (ms)");
-        syncThroughput = metrics.meter("Sync Write Throughput");
+        successCounter = metrics.counter("Sync write success counter");
+        failureCounter = metrics.counter("Sync write failure counter");
+        requestUnits = metrics.histogram("Sync write RUs");
+        syncWriteLatency = metrics.histogram("Sync write latency (ms)");
+        syncThroughput = metrics.meter("Sync write throughput");
 
         log("********************************************************************************************");
         log("Running sync SQL bootstrap workload for " + numberOfDocs + " docs...");

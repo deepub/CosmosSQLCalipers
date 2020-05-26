@@ -17,9 +17,9 @@ public class SQLSyncRead implements WorkloadInterface {
     private static final Logger LOGGER = LoggerFactory.getLogger(SQLSyncRead.class);
 
     public void execute(CosmosContainer container, List<String> payloadIdList, int numberOfOps, MetricRegistry metrics) {
-        requestUnits = metrics.histogram("SQL sync partition key select read RUs");
-        readLatency = metrics.histogram("SQL sync partition key select read latency (ms)");
-        throughput = metrics.meter("SQL sync partition key select read throughput");
+        requestUnits = metrics.histogram("SQL sync partition key read RUs");
+        readLatency = metrics.histogram("SQL sync partition key read latency (ms)");
+        throughput = metrics.meter("SQL sync partition key read throughput");
         readOps(container, payloadIdList, numberOfOps);
     }
 

@@ -22,7 +22,7 @@ public class SQLAsyncUpdate {
 
     public void execute(CosmosContainer container, List<String> orderIdList, int numberOfOps, MetricRegistry metrics) {
 
-        sqlAsyncUpdateRequestUnits = metrics.histogram("Async Update RUs");
+        sqlAsyncUpdateRequestUnits = metrics.histogram("Async update RUs");
         sqlAsyncUpdateLatency = metrics.histogram("Async update latency (ms)");
         throughput = metrics.meter("Async update throughput");
         updateOps(container, orderIdList, numberOfOps);

@@ -21,7 +21,7 @@ public class SQLAsyncRead implements WorkloadInterface {
     public void execute(CosmosContainer container, List<String> payloadIdList, int numberOfOps, MetricRegistry metrics) {
         requestUnits = metrics.histogram("SQL async partition key read RUs");
         readLatency = metrics.histogram("SQL async partition key read latency (ms)");
-        throughput = metrics.meter("SQL async partition key select read throughput");
+        throughput = metrics.meter("SQL async partition key read throughput");
         readOps(container, payloadIdList, numberOfOps);
     }
 
