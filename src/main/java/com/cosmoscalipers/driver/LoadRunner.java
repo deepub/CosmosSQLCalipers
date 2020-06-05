@@ -1,13 +1,18 @@
 package com.cosmoscalipers.driver;
 
-import com.azure.data.cosmos.*;
+import com.azure.cosmos.*;
+import com.azure.cosmos.implementation.ConnectionPolicy;
+import com.azure.cosmos.models.*;
 import com.codahale.metrics.ConsoleReporter;
+import com.codahale.metrics.CsvReporter;
 import com.codahale.metrics.MetricRegistry;
-import org.apache.commons.cli.CommandLine;
+import com.codahale.metrics.ScheduledReporter;
 import com.cosmoscalipers.workload.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -17,8 +22,58 @@ public class LoadRunner {
 
     private static final MetricRegistry metrics = new MetricRegistry();
     private static final Logger LOGGER = LoggerFactory.getLogger(LoadRunner.class);
+    private enum Workflow {ASYNC, SYNC};
 
     public void execute(BenchmarkConfig config) {
+
+        ScheduledReporter reporter = startReport(config.getReporter());
+        String operation = config.getOperation();
+
+        switch(operation) {
+
+            case Constants.CONST_OPERATION_SQL_ASYNC_PARTITION_KEY_READ:
+                executeWorkflow(Workflow.ASYNC, Constants.CONST_OPERATION_SQL_ASYNC_PARTITION_KEY_READ, config, true);
+                break;
+
+            case Constants.CONST_OPERATION_SQL_SYNC_PARTITION_KEY_READ:
+                executeWorkflow(Workflow.SYNC, Constants.CONST_OPERATION_SQL_SYNC_PARTITION_KEY_READ, config, true);
+                break;
+
+            case Constants.CONST_OPERATION_SQL_ASYNC_POINT_READ:
+                executeWorkflow(Workflow.ASYNC, Constants.CONST_OPERATION_SQL_ASYNC_POINT_READ, config, true);
+                break;
+
+            case Constants.CONST_OPERATION_SQL_SYNC_POINT_READ:
+                executeWorkflow(Workflow.SYNC, Constants.CONST_OPERATION_SQL_SYNC_POINT_READ, config, true);
+                break;
+
+            case Constants.CONST_OPERATION_SQL_ASYNC_UPDATE:
+                executeWorkflow(Workflow.ASYNC, Constants.CONST_OPERATION_SQL_ASYNC_UPDATE, config, true);
+                break;
+
+            case Constants.CONST_OPERATION_SQL_SYNC_UPDATE:
+                executeWorkflow(Workflow.SYNC, Constants.CONST_OPERATION_SQL_SYNC_UPDATE, config, true);
+                break;
+
+            case Constants.CONST_OPERATION_ALL_SYNC_OPS:
+                executeWorkflow(Workflow.SYNC, Constants.CONST_OPERATION_ALL_SYNC_OPS, config, true);
+                break;
+
+            case Constants.CONST_OPERATION_ALL_ASYNC_OPS:
+                executeWorkflow(Workflow.ASYNC, Constants.CONST_OPERATION_ALL_ASYNC_OPS, config, true);
+                break;
+
+            case Constants.CONST_OPERATION_SQL_ALL:
+                executeWorkflow(Workflow.SYNC, Constants.CONST_OPERATION_ALL_SYNC_OPS, config, true);
+                executeWorkflow(Workflow.ASYNC, Constants.CONST_OPERATION_ALL_ASYNC_OPS, config, false);
+
+        }
+
+        publishMetrics(reporter);
+
+    }
+
+    private static void executeWorkflow(Workflow workflow, String operation, BenchmarkConfig config, boolean isContainerDeleted) {
 
         int maxPoolSize = config.getMaxPoolSize();
         int maxRetryAttempts = config.getMaxRetryAttempts();
@@ -32,87 +87,94 @@ public class LoadRunner {
         String collection = config.getCollectionId();
         String masterKey = config.getMasterKey();
         ConsistencyLevel consistencyLevel = config.getConsistencyLevel();
-        String operation = config.getOperation();
 
-        CosmosClient client = buildCosmosClient(ConnectionMode.DIRECT, maxPoolSize, maxRetryAttempts,
-                retryWaitTimeInSeconds, hostName, masterKey, consistencyLevel);
-        CosmosDatabase database = getDB(client, databaseName);
-        CosmosContainer container = null;
-
-        try {
-            container = setupContainer(database, collection, provisionedRUs);
-        } catch( Exception e) {
-            throw e;
-        }
-
-        ConsoleReporter consoleReporter = startReport();
         SyncBootstrap syncBootstrap = new SyncBootstrap();
         AsyncBootstrap asyncBootstrap = new AsyncBootstrap();
         List<String> orderIdList = null;
+        CosmosAsyncClient asyncClient = null;
+        CosmosClient syncClient = null;
+        CosmosAsyncDatabase asyncDatabase = null;
+        CosmosDatabase syncDatabase = null;
+        CosmosContainer container = null;
+        CosmosAsyncContainer asyncContainer = null;
+
+        System.out.println("Payload size : " + config.getPayloadSize());
+
+        if(workflow == Workflow.ASYNC) {
+
+            asyncClient = buildCosmosAsyncClient(ConnectionMode.DIRECT, maxPoolSize, maxRetryAttempts,
+                    retryWaitTimeInSeconds, hostName, masterKey, consistencyLevel);
+            asyncDatabase = getDB(asyncClient, databaseName);
+            if (isContainerDeleted) {
+                deleteContainer(asyncDatabase, collection);
+            }
+            asyncContainer = setupContainer(asyncDatabase, collection, provisionedRUs);
+            orderIdList = asyncBootstrap.createDocs(asyncContainer, numberOfItems, payloadSize, metrics);
+
+        } else {
+
+            syncClient = buildCosmosClient(ConnectionMode.DIRECT, maxPoolSize, maxRetryAttempts,
+                    retryWaitTimeInSeconds, hostName, masterKey, consistencyLevel);
+            syncDatabase = getDB(syncClient, databaseName);
+            if (isContainerDeleted) {
+                deleteContainer(syncDatabase, collection);
+            }
+            container = setupContainer(syncDatabase, collection, provisionedRUs);
+            orderIdList = syncBootstrap.createDocs(container, numberOfItems, payloadSize, metrics);
+
+        }
 
         switch(operation) {
+
             case Constants.CONST_OPERATION_SQL_ASYNC_PARTITION_KEY_READ:
-                orderIdList = asyncBootstrap.createDocs(container, numberOfItems, payloadSize, metrics);
-                sqlAsyncReadWorkload(container, orderIdList, numberOfItems, metrics);
+                sqlAsyncReadWorkload(asyncContainer, orderIdList, numberOfItems, metrics);
                 break;
 
             case Constants.CONST_OPERATION_SQL_SYNC_PARTITION_KEY_READ:
-                orderIdList = syncBootstrap.createDocs(container, numberOfItems, payloadSize, metrics);
                 sqlSyncReadWorkload(container, orderIdList, numberOfItems, metrics);
                 break;
 
             case Constants.CONST_OPERATION_SQL_SYNC_POINT_READ:
-                orderIdList = syncBootstrap.createDocs(container, numberOfItems, payloadSize, metrics);
                 sqlSyncPointReadWorkload(container, orderIdList, numberOfItems, metrics);
                 break;
 
             case Constants.CONST_OPERATION_SQL_ASYNC_POINT_READ:
-                orderIdList = asyncBootstrap.createDocs(container, numberOfItems, payloadSize, metrics);
-                sqlAsyncPointReadWorkload(container, orderIdList, numberOfItems, metrics);
+                sqlAsyncPointReadWorkload(asyncContainer, orderIdList, numberOfItems, metrics);
                 break;
 
             case Constants.CONST_OPERATION_SQL_ASYNC_UPDATE:
-                orderIdList = asyncBootstrap.createDocs(container, numberOfItems, payloadSize, metrics);
-                sqlAsyncUpdateWorkload(container, orderIdList, numberOfItems, metrics);
+                sqlAsyncUpdateWorkload(asyncContainer, orderIdList, numberOfItems, metrics);
                 break;
 
             case Constants.CONST_OPERATION_SQL_SYNC_UPDATE:
-                orderIdList = syncBootstrap.createDocs(container, numberOfItems, payloadSize, metrics);
                 sqlSyncUpdateWorkload(container, orderIdList, numberOfItems, metrics);
                 break;
 
             case Constants.CONST_OPERATION_ALL_SYNC_OPS:
-                orderIdList = syncBootstrap.createDocs(container, numberOfItems, payloadSize, metrics);
                 sqlSyncReadWorkload(container, orderIdList, numberOfItems, metrics);
                 sqlSyncPointReadWorkload(container, orderIdList, numberOfItems, metrics);
                 sqlSyncUpdateWorkload(container, orderIdList, numberOfItems, metrics);
                 break;
 
             case Constants.CONST_OPERATION_ALL_ASYNC_OPS:
-                orderIdList = asyncBootstrap.createDocs(container, numberOfItems, payloadSize, metrics);
-                sqlAsyncReadWorkload(container, orderIdList, numberOfItems, metrics);
-                sqlAsyncPointReadWorkload(container, orderIdList, numberOfItems, metrics);
-                sqlAsyncUpdateWorkload(container, orderIdList, numberOfItems, metrics);
+                sqlAsyncReadWorkload(asyncContainer, orderIdList, numberOfItems, metrics);
+                sqlAsyncPointReadWorkload(asyncContainer, orderIdList, numberOfItems, metrics);
+                sqlAsyncUpdateWorkload(asyncContainer, orderIdList, numberOfItems, metrics);
                 break;
 
-            case Constants.CONST_OPERATION_SQL_ALL:
-            default:
-                orderIdList = syncBootstrap.createDocs(container, numberOfItems, payloadSize, metrics);
-                sqlSyncReadWorkload(container, orderIdList, numberOfItems, metrics);
-                sqlAsyncReadWorkload(container, orderIdList, numberOfItems, metrics);
-                sqlSyncPointReadWorkload(container, orderIdList, numberOfItems, metrics);
-                sqlAsyncPointReadWorkload(container, orderIdList, numberOfItems, metrics);
-                sqlSyncUpdateWorkload(container, orderIdList, numberOfItems, metrics);
-                sqlAsyncUpdateWorkload(container, orderIdList, numberOfItems, metrics);
         }
 
-        sqlSyncDeleteWorkload(container, orderIdList, numberOfItems, metrics);
-        publishMetrics(consoleReporter);
-        client.close();
+        if(workflow == Workflow.ASYNC) {
+            sqlAsyncDeleteWorkload(asyncContainer, orderIdList, numberOfItems, metrics);
+            asyncClient.close();
+        } else {
+            sqlSyncDeleteWorkload(container, orderIdList, numberOfItems, metrics);
+            syncClient.close();
+        }
+
     }
 
-
-    private static void sqlAsyncReadWorkload(CosmosContainer container, List<String> orderIdList, int numberOfItems, MetricRegistry metrics ) {
+    private static void sqlAsyncReadWorkload(CosmosAsyncContainer container, List<String> orderIdList, int numberOfItems, MetricRegistry metrics ) {
         SQLAsyncRead SQLAsyncReader = new SQLAsyncRead();
         SQLAsyncReader.execute(container, orderIdList, numberOfItems, metrics);
     }
@@ -127,7 +189,7 @@ public class LoadRunner {
         pointRead.execute(container, orderIdList, numberOfItems, metrics);
     }
 
-    private static void sqlAsyncPointReadWorkload(CosmosContainer container, List<String> orderIdList, int numberOfItems, MetricRegistry metrics ) {
+    private static void sqlAsyncPointReadWorkload(CosmosAsyncContainer container, List<String> orderIdList, int numberOfItems, MetricRegistry metrics ) {
         SQLAsyncPointRead pointRead = new SQLAsyncPointRead();
         pointRead.execute(container, orderIdList, numberOfItems, metrics);
     }
@@ -137,12 +199,17 @@ public class LoadRunner {
         sqlSyncDelete.execute(container, orderIdList, numberOfItems, metrics);
     }
 
+    private static void sqlAsyncDeleteWorkload(CosmosAsyncContainer container, List<String> orderIdList, int numberOfItems, MetricRegistry metrics ) {
+        SQLAsyncDelete sqlAsyncDelete = new SQLAsyncDelete();
+        sqlAsyncDelete.execute(container, orderIdList, numberOfItems, metrics);
+    }
+
     private static void sqlSyncUpdateWorkload(CosmosContainer container, List<String> orderIdList, int numberOfItems, MetricRegistry metrics ) {
         SQLSyncUpdate sqlSyncUpdate = new SQLSyncUpdate();
         sqlSyncUpdate.execute(container, orderIdList, numberOfItems, metrics);
     }
 
-    private static void sqlAsyncUpdateWorkload(CosmosContainer container, List<String> orderIdList, int numberOfItems, MetricRegistry metrics ) {
+    private static void sqlAsyncUpdateWorkload(CosmosAsyncContainer container, List<String> orderIdList, int numberOfItems, MetricRegistry metrics ) {
         SQLAsyncUpdate sqlAsyncUpdate = new SQLAsyncUpdate();
         sqlAsyncUpdate.execute(container, orderIdList, numberOfItems, metrics);
     }
@@ -151,31 +218,62 @@ public class LoadRunner {
         return client.getDatabase(database);
     }
 
-    private static CosmosClient buildCosmosClient(ConnectionMode connectionMode, int maxPoolSize, int maxRetryAttempts,
+    private static CosmosAsyncDatabase getDB(CosmosAsyncClient client, String database) {
+        return client.getDatabase(database);
+    }
+
+    private static ConnectionPolicy getConnectionPolicy(ConnectionMode connectionMode, int maxPoolSize) {
+        ConnectionPolicy connectionPolicy = ConnectionPolicy.getDefaultPolicy();
+        connectionPolicy.setConnectionMode(connectionMode);
+        connectionPolicy.setPreferredRegions( Arrays.asList("South Central US","North Central US"));
+        connectionPolicy.setMultipleWriteRegionsEnabled(true);
+        connectionPolicy.setMaxConnectionPoolSize(maxPoolSize);
+
+        return connectionPolicy;
+    }
+
+    private static ThrottlingRetryOptions getRetryOptions(int maxRetryAttempts,
+                                                          int retryWaitTimeInSeconds) {
+        ThrottlingRetryOptions retryOptions = new ThrottlingRetryOptions();
+        retryOptions.setMaxRetryAttemptsOnThrottledRequests(maxRetryAttempts);
+        retryOptions.setMaxRetryWaitTime(Duration.ofSeconds(retryWaitTimeInSeconds));
+
+        return retryOptions;
+    }
+
+    private static CosmosAsyncClient buildCosmosAsyncClient(ConnectionMode connectionMode, int maxPoolSize, int maxRetryAttempts,
                                                   int retryWaitTimeInSeconds, String hostName, String masterKey, ConsistencyLevel consistencyLevel ) {
 
-        ConnectionPolicy connectionPolicy = new ConnectionPolicy();
-        connectionPolicy.connectionMode(connectionMode);
-        connectionPolicy.preferredLocations( Arrays.asList("South Central US","North Central US"));
-        connectionPolicy.usingMultipleWriteLocations(true);
-        connectionPolicy.maxPoolSize(maxPoolSize);
-        RetryOptions retryOptions = new RetryOptions();
-        retryOptions.maxRetryAttemptsOnThrottledRequests(maxRetryAttempts);
-        retryOptions.maxRetryWaitTimeInSeconds(retryWaitTimeInSeconds);
-        connectionPolicy.retryOptions(retryOptions);
+        ThrottlingRetryOptions retryOptions = getRetryOptions(maxRetryAttempts, retryWaitTimeInSeconds);
 
-        return CosmosClient.builder()
-                .endpoint(hostName)
-                .key(masterKey)
-                .connectionPolicy(connectionPolicy)
-                .consistencyLevel( consistencyLevel )
-                .build();
+        return new CosmosClientBuilder()
+            .endpoint(hostName)
+            .key(masterKey)
+            .directMode(DirectConnectionConfig.getDefaultConfig().setIdleConnectionTimeout(Duration.ofMinutes(15)))
+            .throttlingRetryOptions(retryOptions)
+            .consistencyLevel( consistencyLevel )
+            .buildAsyncClient();
 
     }
 
-    private static CosmosContainer setupContainer(CosmosDatabase db, String collection, int provisionedRUs) {
+    private static CosmosClient buildCosmosClient(ConnectionMode connectionMode, int maxPoolSize, int maxRetryAttempts,
+                                                            int retryWaitTimeInSeconds, String hostName, String masterKey, ConsistencyLevel consistencyLevel ) {
 
-        CosmosContainer container;
+        ThrottlingRetryOptions retryOptions = getRetryOptions(maxRetryAttempts, retryWaitTimeInSeconds);
+
+        return new CosmosClientBuilder()
+                .endpoint(hostName)
+                .key(masterKey)
+                .directMode(DirectConnectionConfig.getDefaultConfig().setIdleConnectionTimeout(Duration.ofMinutes(15)))
+                .throttlingRetryOptions(retryOptions)
+                .consistencyLevel( consistencyLevel )
+                .buildClient();
+
+    }
+
+    private static void deleteContainer(CosmosAsyncDatabase db, String collection) {
+
+        CosmosAsyncContainer container;
 
         try {
             container = db.getContainer(collection);
@@ -184,51 +282,102 @@ public class LoadRunner {
             System.out.println("Container " + collection + " doesn't exist");
         }
 
-        CosmosContainerProperties cosmosContainerProperties = new CosmosContainerProperties(collection, Constants.CONST_PARTITION_KEY);
-        IndexingPolicy indexingPolicy = new IndexingPolicy();
-        indexingPolicy.indexingMode(IndexingMode.CONSISTENT);
+    }
 
-        List<IncludedPath> includedPaths = new ArrayList<>();
-        IncludedPath includedPath = new IncludedPath();
-        includedPath.path(Constants.CONST_PARTITION_KEY + "/*");
-        includedPaths.add(includedPath);
-        indexingPolicy.setIncludedPaths(includedPaths);
+    private static void deleteContainer(CosmosDatabase db, String collection) {
 
-        List<ExcludedPath> excludedPaths = new ArrayList<>();
-        ExcludedPath excludedPath2 = new ExcludedPath();
-        excludedPath2.path("/*");
-        excludedPaths.add(excludedPath2);
-        indexingPolicy.excludedPaths(excludedPaths);
+        CosmosContainer container;
 
-        cosmosContainerProperties.indexingPolicy(indexingPolicy);
-        CosmosContainerResponse cosmosContainerResponse = db.createContainerIfNotExists(cosmosContainerProperties, provisionedRUs).block();
+        try {
+            container = db.getContainer(collection);
+            container.delete();
+        } catch(Exception e) {
+            System.out.println("Container " + collection + " doesn't exist");
+        }
 
-        container = cosmosContainerResponse.container();
+    }
+
+    private static CosmosContainer setupContainer(CosmosDatabase db, String collection, int provisionedRUs) {
+
+        CosmosContainer container;
+        CosmosContainerProperties cosmosContainerProperties = getCosmosContainerProperties(collection);
+        CosmosContainerResponse cosmosContainerResponse = db.createContainerIfNotExists(cosmosContainerProperties, provisionedRUs);
+
+        container = cosmosContainerResponse.getContainer();
 
         return container;
 
     }
 
+    private static CosmosAsyncContainer setupContainer(CosmosAsyncDatabase db, String collection, int provisionedRUs) {
+
+        CosmosAsyncContainer container;
+        CosmosContainerProperties cosmosContainerProperties = getCosmosContainerProperties(collection);
+        CosmosAsyncContainerResponse cosmosContainerResponse = db.createContainerIfNotExists(cosmosContainerProperties, provisionedRUs).block();
+
+        container = cosmosContainerResponse.getContainer();
+
+        return container;
+
+    }
+
+    private static CosmosContainerProperties getCosmosContainerProperties(String collection) {
+        CosmosContainerProperties cosmosContainerProperties = new CosmosContainerProperties(collection, Constants.CONST_PARTITION_KEY);
+        IndexingPolicy indexingPolicy = new IndexingPolicy();
+        indexingPolicy.setIndexingMode(IndexingMode.CONSISTENT);
+
+        List<IncludedPath> includedPaths = new ArrayList<>();
+        IncludedPath includedPath = new IncludedPath();
+        includedPath.setPath(Constants.CONST_PARTITION_KEY + "/*");
+        includedPaths.add(includedPath);
+        indexingPolicy.setIncludedPaths(includedPaths);
+
+        List<ExcludedPath> excludedPaths = new ArrayList<>();
+        ExcludedPath excludedPath2 = new ExcludedPath();
+        excludedPath2.setPath("/*");
+        excludedPaths.add(excludedPath2);
+        indexingPolicy.setExcludedPaths(excludedPaths);
+
+        cosmosContainerProperties.setIndexingPolicy(indexingPolicy);
+        return cosmosContainerProperties;
+    }
 
 
-    private static void publishMetrics(ConsoleReporter consoleReporter) {
+    private static void publishMetrics(ScheduledReporter reporter) {
         try {
             Thread.sleep(5 * 1000);
-            consoleReporter.report();
-            consoleReporter.stop();
+            reporter.report();
+            reporter.stop();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
     }
 
-    private static ConsoleReporter startReport() {
-        ConsoleReporter consoleReporter = ConsoleReporter.forRegistry(metrics)
-                .convertRatesTo(TimeUnit.SECONDS)
-                .convertDurationsTo(TimeUnit.MILLISECONDS)
-                .build();
+    private static ScheduledReporter startReport(String resultsReporter) {
 
-        return consoleReporter;
+        ScheduledReporter reporter = null;
+
+        if (resultsReporter.equalsIgnoreCase(Constants.CONST_CONSOLEREPORTER)) {
+            reporter = ConsoleReporter.forRegistry(metrics)
+                    .convertRatesTo(TimeUnit.SECONDS)
+                    .convertDurationsTo(TimeUnit.MILLISECONDS)
+                    .build();
+
+        } else if (resultsReporter.equalsIgnoreCase(Constants.CONST_CSVREPORTER)) {
+
+            File directory = new File(Constants.CONST_CSVFILES_LOCATION);
+            if(!directory.exists()) {
+                directory.mkdir();
+            }
+
+            reporter = CsvReporter.forRegistry(metrics)
+                    .convertRatesTo(TimeUnit.SECONDS)
+                    .convertDurationsTo(TimeUnit.MILLISECONDS)
+                    .build(directory);
+        }
+
+        return reporter;
     }
 
 }

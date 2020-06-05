@@ -1,8 +1,9 @@
 package com.cosmoscalipers.workload;
 
-import com.azure.data.cosmos.CosmosClientException;
-import com.azure.data.cosmos.CosmosContainer;
-import com.azure.data.cosmos.CosmosItemResponse;
+import com.azure.cosmos.CosmosAsyncContainer;
+import com.azure.cosmos.CosmosClientException;
+import com.azure.cosmos.models.CosmosAsyncItemResponse;
+import com.azure.cosmos.models.CosmosItemRequestOptions;
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.Histogram;
 import com.codahale.metrics.Meter;
@@ -18,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.LongStream;
 
-public class AsyncBootstrap implements Bootstrap{
+public class AsyncBootstrap{
 
     private static Counter successCounter = null;
     private static Counter failureCounter = null;
@@ -27,12 +28,12 @@ public class AsyncBootstrap implements Bootstrap{
     private static Meter asyncThroughput = null;
     private static final Logger LOGGER = LoggerFactory.getLogger(AsyncBootstrap.class);
 
-    public List<String> createDocs(CosmosContainer container, int numberOfDocs, int payloadSize, MetricRegistry metrics  ) {
+    public List<String> createDocs(CosmosAsyncContainer container, int numberOfDocs, int payloadSize, MetricRegistry metrics  ) {
 
         List<String> payloadIdList = new ArrayList<String>();
-        successCounter = metrics.counter("Write success counter");
-        failureCounter = metrics.counter("Write failure counter");
-        requestUnits = metrics.histogram("Write RUs");
+        successCounter = metrics.counter("Async write success counter");
+        failureCounter = metrics.counter("Async write failure counter");
+        requestUnits = metrics.histogram("Async write RUs");
         asyncWriteLatency = metrics.histogram("Async write latency (ms)");
         asyncThroughput = metrics.meter("Async write throughput");
 
@@ -41,37 +42,43 @@ public class AsyncBootstrap implements Bootstrap{
         log("Running async SQL bootstrap workload for " + numberOfDocs + " docs...");
 
         LongStream.range(1, numberOfDocs + 1)
-                .parallel()
                 .forEach( counter -> asyncWrite(counter, payloadSize, payloadIdList, container));
 
         return payloadIdList;
     }
 
     private static void log(String msg, Throwable throwable){
-        log(msg + ": " + ((CosmosClientException)throwable).statusCode());
+        log(msg + ": " + ((CosmosClientException)throwable).getStatusCode());
     }
 
     private static void log(Object object) {
         System.out.println(object);
     }
 
-    private static void asyncWrite(long counter, int payloadSize, List<String> payloadIdList, CosmosContainer container) {
+    private static void asyncWrite(long counter, int payloadSize, List<String> payloadIdList, CosmosAsyncContainer container) {
         String payloadId = "ORD101" + counter;
         String payload = StringUtils.rightPad( Long.valueOf(counter).toString() , payloadSize, "*");
         payloadIdList.add(payloadId);
-        Mono<CosmosItemResponse> responseMono = container.createItem(new Payload(payloadId, payloadId, payload));
+        CosmosItemRequestOptions options = new CosmosItemRequestOptions();
+        Mono<CosmosAsyncItemResponse<Payload>> responseMono = container.createItem(new Payload(payloadId, payloadId, payload), options);
 
-        responseMono.doOnError(throwable -> {
-            failureCounter.inc();
-        })
-        .doOnSuccess(result -> {
-            successCounter.inc();
-            requestUnits.update( Math.round(result.requestCharge()) );
-            asyncWriteLatency.update( result.requestLatency().toMillis() );
-            asyncThroughput.mark();
-        })
-        .publishOn(Schedulers.elastic())
-        .block();
+        try {
+            responseMono.doOnError(throwable -> {
+                failureCounter.inc();
+            })
+                    .doOnSuccess(result -> {
+                        successCounter.inc();
+                        requestUnits.update( Math.round(result.getRequestCharge()) );
+                        asyncWriteLatency.update( result.getRequestLatency().toMillis() );
+                        asyncThroughput.mark();
+                    })
+                    .publishOn(Schedulers.elastic())
+                    .block();
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            System.exit(1);
+        }
 
     }
 }

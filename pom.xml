@@ -26,11 +26,11 @@
       <scope>test</scope>
     </dependency>
 
-    <!-- https://mvnrepository.com/artifact/com.microsoft.azure/azure-cosmos -->
+    <!-- https://mvnrepository.com/artifact/com.azure/azure-cosmos -->
     <dependency>
-      <groupId>com.microsoft.azure</groupId>
+      <groupId>com.azure</groupId>
       <artifactId>azure-cosmos</artifactId>
-      <version>3.7.1</version>
+      <version>4.0.1-beta.3</version>
     </dependency>
 
     <!-- https://mvnrepository.com/artifact/commons-cli/commons-cli -->

@@ -1,6 +1,6 @@
 package com.cosmoscalipers.driver;
 
-import com.azure.data.cosmos.ConsistencyLevel;
+import com.azure.cosmos.ConsistencyLevel;
 
 public class BenchmarkConfig {
     private String host;
@@ -15,6 +15,7 @@ public class BenchmarkConfig {
     private int maxRetryAttempts;
     private int retryWaitTimeInSeconds;
     private String operation;
+    private String reporter;
 
     public String getHost() {
         return host;
@@ -110,5 +111,13 @@ public class BenchmarkConfig {
 
     public void setCollectionId(String collectionId) {
         this.collectionId = collectionId;
+    }
+
+    public String getReporter() {
+        return reporter;
+    }
+
+    public void setReporter(String reporter) {
+        this.reporter = reporter;
     }
 }

@@ -1,6 +1,6 @@
 package com.cosmoscalipers;
 
-import com.azure.data.cosmos.ConsistencyLevel;
+import com.azure.cosmos.ConsistencyLevel;
 import com.cosmoscalipers.driver.BenchmarkConfig;
 import com.cosmoscalipers.driver.Constants;
 import com.cosmoscalipers.driver.LoadRunner;
@@ -27,10 +27,10 @@ public class Measure
 
         /**
          * Usage:
-         * --hostname https://dbcosmosdb.documents.azure.com:443/
+         * --hostname <your cosmos account>
          * --database demo
          * --collection orders
-         * --key vx2airQoJf8UU7UPogflnnxnqu8cdqPrCGCo1MnZQtbXfqYgBz1Tn4mnrzBSFux2hFI0Ci5IEx6BAfTPkQorhg==
+         * --key <your cosmos account primary key>
          * --numberofdocs 100
          * --payloadSize 1000
          * --consistencylevel SESSION
@@ -40,7 +40,7 @@ public class Measure
          * --maxretrywaittimeinseconds 1
          * --operation test
          * Examples
-         * --hostname https://dbcosmosdemodb.documents.azure.com:443/ --database demo --collection orders --key t33UBPbsMY67mYy8vIvbPE16p3KlD0E6D3av8UczQcxURiYfKesciE22mcLgdQio6D4rqQSP16oWVwdKxwWfnw== --numberofdocs 1000 --payloadSize 500 --consistencylevel SESSION --provisionedrus 400 --maxpoolsize 100 --maxretryattempts 10 --maxretrywaittimeinseconds 1 --operation SQL_ALL
+         * --hostname <your cosmos account> --database demo --collection orders --key <your cosmos account primary key> --numberofdocs 1000 --payloadSize 500 --consistencylevel SESSION --provisionedrus 400 --maxpoolsize 100 --maxretryattempts 10 --maxretrywaittimeinseconds 1 --operation SQL_ALL
          */
 
         Options commandLineOptions = new Options();
@@ -57,6 +57,7 @@ public class Measure
         commandLineOptions.addOption( Option.builder().longOpt(Constants.CONST_OPTION_MAX_RETRY_ATTEMPTS).required(true).hasArg().desc("Max retry attempts when backpressure is encountered").build()  );
         commandLineOptions.addOption( Option.builder().longOpt(Constants.CONST_OPTION_MAX_RETRY_WAIT_TIME_IN_SECONDS).required(true).hasArg().desc("Max retry wait time in seconds").build()  );
         commandLineOptions.addOption( Option.builder().longOpt(Constants.CONST_OPTION_OPERATION).required(false).hasArg().desc("Primary operation being exercised").build()  );
+        commandLineOptions.addOption( Option.builder().longOpt(Constants.CONST_OPTION_REPORTER).required(false).hasArg().desc("Primary operation being exercised").build()  );
 
         CommandLineParser parser = new DefaultParser();
         CommandLine commandLine = null;
@@ -88,6 +89,7 @@ public class Measure
         String masterKey = commandLine.getOptionValue(Constants.CONST_OPTION_KEY);
         String consistencyOption = commandLine.getOptionValue(Constants.CONST_OPTION_CONSISTENCY_LEVEL);
         String operation = commandLine.getOptionValue(Constants.CONST_OPTION_OPERATION);
+        String reporter = commandLine.getOptionValue(Constants.CONST_OPTION_REPORTER);
 
         if(operation == null || operation.isEmpty() || operation.isBlank()) {
             operation = Constants.CONST_OPERATION_SQL_ALL;
@@ -131,6 +133,7 @@ public class Measure
         config.setMaxRetryAttempts(maxRetryAttempts);
         config.setRetryWaitTimeInSeconds(retryWaitTimeInSeconds);
         config.setOperation(operation);
+        config.setReporter(reporter.toUpperCase());
 
         System.out.println("host name : " + config.getHost());
         System.out.println("database : " + config.getDatabaseId());

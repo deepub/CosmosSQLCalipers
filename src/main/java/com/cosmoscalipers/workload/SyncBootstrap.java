@@ -1,8 +1,10 @@
 package com.cosmoscalipers.workload;
 
-import com.azure.data.cosmos.CosmosClientException;
-import com.azure.data.cosmos.CosmosContainer;
-import com.azure.data.cosmos.CosmosItemResponse;
+import com.azure.cosmos.CosmosClientException;
+import com.azure.cosmos.CosmosContainer;
+import com.azure.cosmos.models.CosmosItemRequestOptions;
+import com.azure.cosmos.models.CosmosItemResponse;
+import com.azure.cosmos.models.PartitionKey;
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.Histogram;
 import com.codahale.metrics.Meter;
@@ -16,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.LongStream;
 
-public class SyncBootstrap implements Bootstrap{
+public class SyncBootstrap {
 
     private static Counter successCounter = null;
     private static Counter failureCounter = null;
@@ -28,11 +30,11 @@ public class SyncBootstrap implements Bootstrap{
     public List<String> createDocs(CosmosContainer container, int numberOfDocs, int payloadSize, MetricRegistry metrics  ) {
 
         List<String> payloadIdList = new ArrayList<String>();
-        successCounter = metrics.counter("Write success counter");
-        failureCounter = metrics.counter("Write failure counter");
-        requestUnits = metrics.histogram("Write RUs");
-        syncWriteLatency = metrics.histogram("Sync Write Latency (ms)");
-        syncThroughput = metrics.meter("Sync Write Throughput");
+        successCounter = metrics.counter("Sync write success counter");
+        failureCounter = metrics.counter("Sync write failure counter");
+        requestUnits = metrics.histogram("Sync write RUs");
+        syncWriteLatency = metrics.histogram("Sync write latency (ms)");
+        syncThroughput = metrics.meter("Sync write throughput");
 
         log("********************************************************************************************");
         log("Running sync SQL bootstrap workload for " + numberOfDocs + " docs...");
@@ -44,7 +46,7 @@ public class SyncBootstrap implements Bootstrap{
     }
 
     private static void log(String msg, Throwable throwable){
-        log(msg + ": " + ((CosmosClientException)throwable).statusCode());
+        log(msg + ": " + ((CosmosClientException)throwable).getStatusCode());
     }
 
     private static void log(Object object) {
@@ -54,11 +56,13 @@ public class SyncBootstrap implements Bootstrap{
     private static void syncWrite(long counter, int payloadSize, List<String> payloadIdList, CosmosContainer container) {
         String payloadId = "ORD101" + counter;
         String payload = StringUtils.rightPad(Long.valueOf(counter).toString(), payloadSize, "*");
+        Payload aPayload = new Payload(payloadId, payloadId, payload);
         payloadIdList.add(payloadId);
-        CosmosItemResponse itemResponse = container.createItem(new Payload(payloadId, payloadId, payload)).block();
+        CosmosItemRequestOptions cosmosItemRequestOptions = new CosmosItemRequestOptions();
+        CosmosItemResponse itemResponse = container.createItem(aPayload, new PartitionKey(aPayload.getPayloadId()), cosmosItemRequestOptions);
         successCounter.inc();
-        requestUnits.update( Math.round(itemResponse.requestCharge()) );
-        syncWriteLatency.update( itemResponse.requestLatency().toMillis() );
+        requestUnits.update( Math.round(itemResponse.getRequestCharge()) );
+        syncWriteLatency.update( itemResponse.getRequestLatency().toMillis() );
         syncThroughput.mark();
 
     }

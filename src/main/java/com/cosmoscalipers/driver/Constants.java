@@ -14,6 +14,7 @@ public class Constants {
     public static final String CONST_OPTION_MAX_RETRY_WAIT_TIME_IN_SECONDS = "maxretrywaittimeinseconds";
     public static final String CONST_OPTION_OPERATION = "operation";
     public static final String CONST_OPTION_PAYLOAD_SIZE = "payloadSize";
+    public static final String CONST_OPTION_REPORTER = "reporter";
 
     public static final int CONST_MINIMUM_PAYLOAD_SIZE = 800;
     public static final String CONST_PARTITION_KEY = "/payloadId";
@@ -33,5 +34,9 @@ public class Constants {
     public static final String CONST_CONSISTENCY_LEVEL_SESSION = "SESSION";
     public static final String CONST_CONSISTENCY_LEVEL_CONSISTENT_PREFIX = "CONSISTENT_PREFIX";
     public static final String CONST_CONSISTENCY_LEVEL_EVENTUAL = "EVENTUAL";
+
+    public static final String CONST_CONSOLEREPORTER = "CONSOLE";
+    public static final String CONST_CSVREPORTER = "CSV";
+    public static final String CONST_CSVFILES_LOCATION = "output/";
 
 }

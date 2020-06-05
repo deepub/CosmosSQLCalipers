@@ -1,8 +1,9 @@
 package com.cosmoscalipers.workload;
 
-import com.azure.data.cosmos.CosmosClientException;
-import com.azure.data.cosmos.CosmosContainer;
-import com.azure.data.cosmos.CosmosItemResponse;
+import com.azure.cosmos.CosmosClientException;
+import com.azure.cosmos.CosmosContainer;
+import com.azure.cosmos.models.CosmosItemResponse;
+import com.azure.cosmos.models.PartitionKey;
 import com.codahale.metrics.Histogram;
 import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricRegistry;
@@ -37,24 +38,20 @@ public class SQLSyncUpdate {
 
     private static void update(CosmosContainer container, String orderId) {
 
-        CosmosItemResponse cosmosItemResponse = container.getItem(orderId, orderId).read().block();
+        CosmosItemResponse<Payload> cosmosItemResponse = container.readItem(orderId, new PartitionKey(orderId), Payload.class);
         assert cosmosItemResponse != null;
-        Payload payload = new Payload(
-                cosmosItemResponse.properties().get("id").toString(),
-                cosmosItemResponse.properties().get("id").toString(),
-                "Updated:" + cosmosItemResponse.properties().get("payload").toString()
-                );
+        Payload payload = cosmosItemResponse.getItem();
+        payload.setPayload("Updated:" + payload.getPayload());
+        cosmosItemResponse = container.upsertItem(payload);
 
-        cosmosItemResponse = container.getItem(orderId, orderId).read().block().item().replace(payload).block();
-
-        sqlSyncUpdateRequestUnits.update( Math.round(cosmosItemResponse.requestCharge()) );
-        sqlSyncUpdateLatency.update(cosmosItemResponse.requestLatency().toMillis());
+        sqlSyncUpdateRequestUnits.update( Math.round(cosmosItemResponse.getRequestCharge()) );
+        sqlSyncUpdateLatency.update(cosmosItemResponse.getRequestLatency().toMillis());
         throughput.mark();
 
     }
 
     private static void log(String msg, Throwable throwable){
-        log(msg + ": " + ((CosmosClientException)throwable).statusCode());
+        log(msg + ": " + ((CosmosClientException)throwable).getStatusCode());
     }
 
     private static void log(Object object) {

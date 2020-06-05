@@ -1,17 +1,19 @@
 package com.cosmoscalipers.workload;
 
-import com.azure.data.cosmos.CosmosClientException;
-import com.azure.data.cosmos.CosmosContainer;
-import com.azure.data.cosmos.CosmosItemResponse;
+import com.azure.cosmos.CosmosClientException;
+import com.azure.cosmos.CosmosContainer;
+import com.azure.cosmos.models.CosmosItemResponse;
+import com.azure.cosmos.models.PartitionKey;
 import com.codahale.metrics.Histogram;
 import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricRegistry;
+import com.cosmoscalipers.driver.Payload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-public class SQLSyncPointRead  implements WorkloadInterface {
+public class SQLSyncPointRead  {
 
     private static Histogram requestUnits = null;
     private static Histogram readLatency = null;
@@ -35,17 +37,28 @@ public class SQLSyncPointRead  implements WorkloadInterface {
 
     private static void read(CosmosContainer container, String payloadId) {
 
-        CosmosItemResponse cosmosItemResponse = container.getItem(payloadId, payloadId).read().block();
-        requestUnits.update( Math.round(cosmosItemResponse.requestCharge()) );
-        readLatency.update(cosmosItemResponse.requestLatency().toMillis());
-        throughput.mark();
-        //log( cosmosItemResponse.properties().toJson()  );
-        //log( cosmosItemResponse.cosmosResponseDiagnosticsString() );
+        try {
+            CosmosItemResponse cosmosItemResponse = container.readItem(payloadId, new PartitionKey(payloadId), Payload.class);
+
+            requestUnits.update( Math.round(cosmosItemResponse.getRequestCharge()) );
+            readLatency.update(cosmosItemResponse.getRequestLatency().toMillis());
+            throughput.mark();
+            //log( cosmosItemResponse.properties().toJson()  );
+            //log( cosmosItemResponse.cosmosResponseDiagnosticsString() );
+
+        } catch(Exception e) {
+            if(e instanceof CosmosClientException) {
+                log(e.getStackTrace());
+            }
+            else {
+                System.out.println(e.getStackTrace());
+            }
+        }
 
     }
 
     private static void log(String msg, Throwable throwable){
-        log(msg + ": " + ((CosmosClientException)throwable).statusCode());
+        log(msg + ": " + ((CosmosClientException)throwable).getStatusCode());
     }
 
     private static void log(Object object) {

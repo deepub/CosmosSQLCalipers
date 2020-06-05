@@ -1,6 +1,6 @@
 package com.cosmoscalipers.workload;
 
-import com.azure.data.cosmos.CosmosContainer;
+import com.azure.cosmos.CosmosContainer;
 import com.codahale.metrics.MetricRegistry;
 
 import java.util.List;

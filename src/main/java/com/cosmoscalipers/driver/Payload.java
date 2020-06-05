@@ -5,6 +5,9 @@ public class Payload {
     private String payloadId;
     private String payload;
 
+    public Payload() {
+    }
+
     public Payload(String id, String payloadId, String payload) {
         this.id = id;
         this.payloadId = payloadId;
