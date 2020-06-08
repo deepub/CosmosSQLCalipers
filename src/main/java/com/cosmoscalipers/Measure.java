@@ -38,9 +38,10 @@ public class Measure
          * --maxpoolsize 1000
          * --maxretryattempts 10
          * --maxretrywaittimeinseconds 1
-         * --operation test
+         * --operation SQL_ALL
+         * --reporter CONSOLE
          * Examples
-         * --hostname <your cosmos account> --database demo --collection orders --key <your cosmos account primary key> --numberofdocs 1000 --payloadSize 500 --consistencylevel SESSION --provisionedrus 400 --maxpoolsize 100 --maxretryattempts 10 --maxretrywaittimeinseconds 1 --operation SQL_ALL
+         * --hostname <your cosmos account> --database demo --collection orders --key <your cosmos account primary key> --numberofdocs 1000 --payloadSize 500 --consistencylevel SESSION --provisionedrus 400 --maxpoolsize 100 --maxretryattempts 10 --maxretrywaittimeinseconds 1 --operation SQL_ALL --reporter CONSOLE
          */
 
         Options commandLineOptions = new Options();
