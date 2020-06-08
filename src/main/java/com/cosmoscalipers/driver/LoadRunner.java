@@ -1,7 +1,6 @@
 package com.cosmoscalipers.driver;
 
 import com.azure.cosmos.*;
-import com.azure.cosmos.implementation.ConnectionPolicy;
 import com.azure.cosmos.models.*;
 import com.codahale.metrics.ConsoleReporter;
 import com.codahale.metrics.CsvReporter;
@@ -14,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -220,16 +218,6 @@ public class LoadRunner {
 
     private static CosmosAsyncDatabase getDB(CosmosAsyncClient client, String database) {
         return client.getDatabase(database);
-    }
-
-    private static ConnectionPolicy getConnectionPolicy(ConnectionMode connectionMode, int maxPoolSize) {
-        ConnectionPolicy connectionPolicy = ConnectionPolicy.getDefaultPolicy();
-        connectionPolicy.setConnectionMode(connectionMode);
-        connectionPolicy.setPreferredRegions( Arrays.asList("South Central US","North Central US"));
-        connectionPolicy.setMultipleWriteRegionsEnabled(true);
-        connectionPolicy.setMaxConnectionPoolSize(maxPoolSize);
-
-        return connectionPolicy;
     }
 
     private static ThrottlingRetryOptions getRetryOptions(int maxRetryAttempts,
