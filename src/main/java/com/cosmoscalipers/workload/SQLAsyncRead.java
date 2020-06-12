@@ -1,8 +1,8 @@
 package com.cosmoscalipers.workload;
 
 import com.azure.cosmos.CosmosAsyncContainer;
-import com.azure.cosmos.CosmosClientException;
-import com.azure.cosmos.models.FeedOptions;
+import com.azure.cosmos.CosmosException;
+import com.azure.cosmos.models.CosmosQueryRequestOptions;
 import com.azure.cosmos.util.CosmosPagedFlux;
 import com.codahale.metrics.Histogram;
 import com.codahale.metrics.Meter;
@@ -37,9 +37,9 @@ public class SQLAsyncRead{
 
     private static void read(CosmosAsyncContainer container, String payloadId) {
         String query = "SELECT * FROM coll WHERE coll.payloadId = '" + payloadId + "'";
-        FeedOptions options = new FeedOptions();
+        CosmosQueryRequestOptions options = new CosmosQueryRequestOptions();
         options.setMaxDegreeOfParallelism(2);
-        options.setPopulateQueryMetrics(true);
+        options.setQueryMetricsEnabled(true);
 
         long startTime = System.currentTimeMillis();
         CosmosPagedFlux<Payload> queryFlux = container.queryItems(query, options, Payload.class);
@@ -54,8 +54,8 @@ public class SQLAsyncRead{
 
             },
             error -> {
-                if(error instanceof CosmosClientException) {
-                    CosmosClientException cosmosClientException = (CosmosClientException) error;
+                if(error instanceof CosmosException) {
+                    CosmosException cosmosClientException = (CosmosException) error;
                     cosmosClientException.printStackTrace();
                     log("Error occurred while executing query");
                 } else {
@@ -76,7 +76,7 @@ public class SQLAsyncRead{
     }
 
     private static void log(String msg, Throwable throwable){
-        log(msg + ": " + ((CosmosClientException)throwable).getStatusCode());
+        log(msg + ": " + ((CosmosException)throwable).getStatusCode());
     }
 
     private static void log(Object object) {

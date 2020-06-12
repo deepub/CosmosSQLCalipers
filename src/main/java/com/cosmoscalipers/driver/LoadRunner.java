@@ -45,12 +45,12 @@ public class LoadRunner {
                 executeWorkflow(Workflow.SYNC, Constants.CONST_OPERATION_SQL_SYNC_POINT_READ, config, true);
                 break;
 
-            case Constants.CONST_OPERATION_SQL_ASYNC_UPDATE:
-                executeWorkflow(Workflow.ASYNC, Constants.CONST_OPERATION_SQL_ASYNC_UPDATE, config, true);
+            case Constants.CONST_OPERATION_SQL_ASYNC_UPSERT:
+                executeWorkflow(Workflow.ASYNC, Constants.CONST_OPERATION_SQL_ASYNC_UPSERT, config, true);
                 break;
 
-            case Constants.CONST_OPERATION_SQL_SYNC_UPDATE:
-                executeWorkflow(Workflow.SYNC, Constants.CONST_OPERATION_SQL_SYNC_UPDATE, config, true);
+            case Constants.CONST_OPERATION_SQL_SYNC_UPSERT:
+                executeWorkflow(Workflow.SYNC, Constants.CONST_OPERATION_SQL_SYNC_UPSERT, config, true);
                 break;
 
             case Constants.CONST_OPERATION_ALL_SYNC_OPS:
@@ -140,24 +140,24 @@ public class LoadRunner {
                 sqlAsyncPointReadWorkload(asyncContainer, orderIdList, numberOfItems, metrics);
                 break;
 
-            case Constants.CONST_OPERATION_SQL_ASYNC_UPDATE:
-                sqlAsyncUpdateWorkload(asyncContainer, orderIdList, numberOfItems, metrics);
+            case Constants.CONST_OPERATION_SQL_ASYNC_UPSERT:
+                sqlAsyncUpsertWorkload(asyncContainer, orderIdList, numberOfItems, metrics);
                 break;
 
-            case Constants.CONST_OPERATION_SQL_SYNC_UPDATE:
-                sqlSyncUpdateWorkload(container, orderIdList, numberOfItems, metrics);
+            case Constants.CONST_OPERATION_SQL_SYNC_UPSERT:
+                sqlSyncUpsertWorkload(container, orderIdList, numberOfItems, metrics);
                 break;
 
             case Constants.CONST_OPERATION_ALL_SYNC_OPS:
                 sqlSyncReadWorkload(container, orderIdList, numberOfItems, metrics);
                 sqlSyncPointReadWorkload(container, orderIdList, numberOfItems, metrics);
-                sqlSyncUpdateWorkload(container, orderIdList, numberOfItems, metrics);
+                sqlSyncUpsertWorkload(container, orderIdList, numberOfItems, metrics);
                 break;
 
             case Constants.CONST_OPERATION_ALL_ASYNC_OPS:
                 sqlAsyncReadWorkload(asyncContainer, orderIdList, numberOfItems, metrics);
                 sqlAsyncPointReadWorkload(asyncContainer, orderIdList, numberOfItems, metrics);
-                sqlAsyncUpdateWorkload(asyncContainer, orderIdList, numberOfItems, metrics);
+                sqlAsyncUpsertWorkload(asyncContainer, orderIdList, numberOfItems, metrics);
                 break;
 
         }
@@ -202,14 +202,14 @@ public class LoadRunner {
         sqlAsyncDelete.execute(container, orderIdList, numberOfItems, metrics);
     }
 
-    private static void sqlSyncUpdateWorkload(CosmosContainer container, List<String> orderIdList, int numberOfItems, MetricRegistry metrics ) {
-        SQLSyncUpdate sqlSyncUpdate = new SQLSyncUpdate();
-        sqlSyncUpdate.execute(container, orderIdList, numberOfItems, metrics);
+    private static void sqlSyncUpsertWorkload(CosmosContainer container, List<String> orderIdList, int numberOfItems, MetricRegistry metrics ) {
+        SQLSyncUpsert sqlSyncUpsert = new SQLSyncUpsert();
+        sqlSyncUpsert.execute(container, orderIdList, numberOfItems, metrics);
     }
 
-    private static void sqlAsyncUpdateWorkload(CosmosAsyncContainer container, List<String> orderIdList, int numberOfItems, MetricRegistry metrics ) {
-        SQLAsyncUpdate sqlAsyncUpdate = new SQLAsyncUpdate();
-        sqlAsyncUpdate.execute(container, orderIdList, numberOfItems, metrics);
+    private static void sqlAsyncUpsertWorkload(CosmosAsyncContainer container, List<String> orderIdList, int numberOfItems, MetricRegistry metrics ) {
+        SQLAsyncUpsert sqlAsyncUpsert = new SQLAsyncUpsert();
+        sqlAsyncUpsert.execute(container, orderIdList, numberOfItems, metrics);
     }
 
     private static CosmosDatabase getDB(CosmosClient client, String database) {
@@ -289,9 +289,9 @@ public class LoadRunner {
 
         CosmosContainer container;
         CosmosContainerProperties cosmosContainerProperties = getCosmosContainerProperties(collection);
-        CosmosContainerResponse cosmosContainerResponse = db.createContainerIfNotExists(cosmosContainerProperties, provisionedRUs);
-
-        container = cosmosContainerResponse.getContainer();
+        CosmosContainerResponse cosmosContainerResponse = db.createContainerIfNotExists(cosmosContainerProperties,
+                ThroughputProperties.createManualThroughput(provisionedRUs));
+        container = db.getContainer(collection);
 
         return container;
 
@@ -301,9 +301,9 @@ public class LoadRunner {
 
         CosmosAsyncContainer container;
         CosmosContainerProperties cosmosContainerProperties = getCosmosContainerProperties(collection);
-        CosmosAsyncContainerResponse cosmosContainerResponse = db.createContainerIfNotExists(cosmosContainerProperties, provisionedRUs).block();
+        CosmosContainerResponse cosmosContainerResponse = db.createContainerIfNotExists(cosmosContainerProperties, ThroughputProperties.createManualThroughput(provisionedRUs)).block();
 
-        container = cosmosContainerResponse.getContainer();
+        container = db.getContainer(collection);
 
         return container;
 
@@ -315,14 +315,12 @@ public class LoadRunner {
         indexingPolicy.setIndexingMode(IndexingMode.CONSISTENT);
 
         List<IncludedPath> includedPaths = new ArrayList<>();
-        IncludedPath includedPath = new IncludedPath();
-        includedPath.setPath(Constants.CONST_PARTITION_KEY + "/*");
+        IncludedPath includedPath = new IncludedPath(Constants.CONST_PARTITION_KEY + "/*");
         includedPaths.add(includedPath);
         indexingPolicy.setIncludedPaths(includedPaths);
 
         List<ExcludedPath> excludedPaths = new ArrayList<>();
-        ExcludedPath excludedPath2 = new ExcludedPath();
-        excludedPath2.setPath("/*");
+        ExcludedPath excludedPath2 = new ExcludedPath("/*");
         excludedPaths.add(excludedPath2);
         indexingPolicy.setExcludedPaths(excludedPaths);
 

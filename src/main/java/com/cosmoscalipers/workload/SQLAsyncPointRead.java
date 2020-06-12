@@ -1,8 +1,8 @@
 package com.cosmoscalipers.workload;
 
 import com.azure.cosmos.CosmosAsyncContainer;
-import com.azure.cosmos.CosmosClientException;
-import com.azure.cosmos.models.CosmosAsyncItemResponse;
+import com.azure.cosmos.CosmosException;
+import com.azure.cosmos.models.CosmosItemResponse;
 import com.azure.cosmos.models.PartitionKey;
 import com.codahale.metrics.Histogram;
 import com.codahale.metrics.Meter;
@@ -39,11 +39,11 @@ public class SQLAsyncPointRead {
 
     private static void read(CosmosAsyncContainer container, String orderId) {
 
-        Mono<CosmosAsyncItemResponse<Payload>> cosmosItemResponse = container.readItem(orderId, new PartitionKey(orderId), Payload.class);
+        Mono<CosmosItemResponse<Payload>> cosmosItemResponse = container.readItem(orderId, new PartitionKey(orderId), Payload.class);
 
         cosmosItemResponse.doOnSuccess( itemResponse -> {
             requestUnits.update( Math.round(itemResponse.getRequestCharge()) );
-            readLatency.update(itemResponse.getRequestLatency().toMillis());
+            readLatency.update(itemResponse.getDuration().toMillis());
             throughput.mark();
             //log( itemResponse.properties().toJson()  );
 
@@ -54,7 +54,7 @@ public class SQLAsyncPointRead {
     }
 
     private static void log(String msg, Throwable throwable){
-        log(msg + ": " + ((CosmosClientException)throwable).getStatusCode());
+        log(msg + ": " + ((CosmosException)throwable).getStatusCode());
     }
 
     private static void log(Object object) {

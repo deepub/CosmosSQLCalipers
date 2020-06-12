@@ -1,9 +1,9 @@
 package com.cosmoscalipers.workload;
 
 import com.azure.cosmos.CosmosAsyncContainer;
-import com.azure.cosmos.CosmosClientException;
-import com.azure.cosmos.models.CosmosAsyncItemResponse;
+import com.azure.cosmos.CosmosException;
 import com.azure.cosmos.models.CosmosItemRequestOptions;
+import com.azure.cosmos.models.CosmosItemResponse;
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.Histogram;
 import com.codahale.metrics.Meter;
@@ -48,7 +48,7 @@ public class AsyncBootstrap{
     }
 
     private static void log(String msg, Throwable throwable){
-        log(msg + ": " + ((CosmosClientException)throwable).getStatusCode());
+        log(msg + ": " + ((CosmosException)throwable).getStatusCode());
     }
 
     private static void log(Object object) {
@@ -60,7 +60,7 @@ public class AsyncBootstrap{
         String payload = StringUtils.rightPad( Long.valueOf(counter).toString() , payloadSize, "*");
         payloadIdList.add(payloadId);
         CosmosItemRequestOptions options = new CosmosItemRequestOptions();
-        Mono<CosmosAsyncItemResponse<Payload>> responseMono = container.createItem(new Payload(payloadId, payloadId, payload), options);
+        Mono<CosmosItemResponse<Payload>> responseMono = container.createItem(new Payload(payloadId, payloadId, payload), options);
 
         try {
             responseMono.doOnError(throwable -> {
@@ -69,7 +69,7 @@ public class AsyncBootstrap{
                     .doOnSuccess(result -> {
                         successCounter.inc();
                         requestUnits.update( Math.round(result.getRequestCharge()) );
-                        asyncWriteLatency.update( result.getRequestLatency().toMillis() );
+                        asyncWriteLatency.update( result.getDuration().toMillis() );
                         asyncThroughput.mark();
                     })
                     .publishOn(Schedulers.elastic())

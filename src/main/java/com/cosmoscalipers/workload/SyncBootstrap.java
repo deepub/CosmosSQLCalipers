@@ -1,6 +1,6 @@
 package com.cosmoscalipers.workload;
 
-import com.azure.cosmos.CosmosClientException;
+import com.azure.cosmos.CosmosException;
 import com.azure.cosmos.CosmosContainer;
 import com.azure.cosmos.models.CosmosItemRequestOptions;
 import com.azure.cosmos.models.CosmosItemResponse;
@@ -46,7 +46,7 @@ public class SyncBootstrap {
     }
 
     private static void log(String msg, Throwable throwable){
-        log(msg + ": " + ((CosmosClientException)throwable).getStatusCode());
+        log(msg + ": " + ((CosmosException)throwable).getStatusCode());
     }
 
     private static void log(Object object) {
@@ -62,7 +62,7 @@ public class SyncBootstrap {
         CosmosItemResponse itemResponse = container.createItem(aPayload, new PartitionKey(aPayload.getPayloadId()), cosmosItemRequestOptions);
         successCounter.inc();
         requestUnits.update( Math.round(itemResponse.getRequestCharge()) );
-        syncWriteLatency.update( itemResponse.getRequestLatency().toMillis() );
+        syncWriteLatency.update( itemResponse.getDuration().toMillis() );
         syncThroughput.mark();
 
     }

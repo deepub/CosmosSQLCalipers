@@ -1,9 +1,9 @@
 package com.cosmoscalipers.workload;
 
 import com.azure.cosmos.CosmosAsyncContainer;
-import com.azure.cosmos.CosmosClientException;
-import com.azure.cosmos.models.CosmosAsyncItemResponse;
+import com.azure.cosmos.CosmosException;
 import com.azure.cosmos.models.CosmosItemRequestOptions;
+import com.azure.cosmos.models.CosmosItemResponse;
 import com.azure.cosmos.models.PartitionKey;
 import com.codahale.metrics.Histogram;
 import com.codahale.metrics.Meter;
@@ -41,14 +41,14 @@ public class SQLAsyncDelete {
 
     private static void delete(CosmosAsyncContainer container, String payloadId) {
         CosmosItemRequestOptions options = new CosmosItemRequestOptions();
-        Mono<CosmosAsyncItemResponse<Object>> cosmosItemResponse = container.deleteItem(payloadId, new PartitionKey(payloadId), options);
+        Mono<CosmosItemResponse<Object>> cosmosItemResponse = container.deleteItem(payloadId, new PartitionKey(payloadId), options);
 
         cosmosItemResponse.doOnError(throwable -> {
                 log(throwable.getMessage());
             })
             .doOnSuccess(itemResponse -> {
                 sqlAsyncDeleteRequestUnits.update( Math.round(itemResponse.getRequestCharge()) );
-                sqlAsyncDeleteLatency.update(itemResponse.getRequestLatency().toMillis());
+                sqlAsyncDeleteLatency.update(itemResponse.getDuration().toMillis());
                 throughput.mark();
 
             })
@@ -59,7 +59,7 @@ public class SQLAsyncDelete {
     }
 
     private static void log(String msg, Throwable throwable){
-        log(msg + ": " + ((CosmosClientException)throwable).getStatusCode());
+        log(msg + ": " + ((CosmosException)throwable).getStatusCode());
     }
 
     private static void log(Object object) {

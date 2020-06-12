@@ -1,6 +1,6 @@
 package com.cosmoscalipers.workload;
 
-import com.azure.cosmos.CosmosClientException;
+import com.azure.cosmos.CosmosException;
 import com.azure.cosmos.CosmosContainer;
 import com.azure.cosmos.models.CosmosItemResponse;
 import com.azure.cosmos.models.PartitionKey;
@@ -41,13 +41,13 @@ public class SQLSyncPointRead  {
             CosmosItemResponse cosmosItemResponse = container.readItem(payloadId, new PartitionKey(payloadId), Payload.class);
 
             requestUnits.update( Math.round(cosmosItemResponse.getRequestCharge()) );
-            readLatency.update(cosmosItemResponse.getRequestLatency().toMillis());
+            readLatency.update(cosmosItemResponse.getDuration().toMillis());
             throughput.mark();
             //log( cosmosItemResponse.properties().toJson()  );
             //log( cosmosItemResponse.cosmosResponseDiagnosticsString() );
 
         } catch(Exception e) {
-            if(e instanceof CosmosClientException) {
+            if(e instanceof CosmosException) {
                 log(e.getStackTrace());
             }
             else {
@@ -58,7 +58,7 @@ public class SQLSyncPointRead  {
     }
 
     private static void log(String msg, Throwable throwable){
-        log(msg + ": " + ((CosmosClientException)throwable).getStatusCode());
+        log(msg + ": " + ((CosmosException)throwable).getStatusCode());
     }
 
     private static void log(Object object) {

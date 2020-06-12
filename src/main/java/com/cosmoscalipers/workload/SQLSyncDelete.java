@@ -1,6 +1,6 @@
 package com.cosmoscalipers.workload;
 
-import com.azure.cosmos.CosmosClientException;
+import com.azure.cosmos.CosmosException;
 import com.azure.cosmos.CosmosContainer;
 import com.azure.cosmos.models.CosmosItemRequestOptions;
 import com.azure.cosmos.models.CosmosItemResponse;
@@ -41,13 +41,13 @@ public class SQLSyncDelete {
         CosmosItemRequestOptions options = new CosmosItemRequestOptions();
         CosmosItemResponse cosmosItemResponse = container.deleteItem(payloadId, new PartitionKey(payloadId), options);
         sqlSyncDeleteRequestUnits.update( Math.round(cosmosItemResponse.getRequestCharge()) );
-        sqlSyncDeleteLatency.update(cosmosItemResponse.getRequestLatency().toMillis());
+        sqlSyncDeleteLatency.update(cosmosItemResponse.getDuration().toMillis());
         throughput.mark();
 
     }
 
     private static void log(String msg, Throwable throwable){
-        log(msg + ": " + ((CosmosClientException)throwable).getStatusCode());
+        log(msg + ": " + ((CosmosException)throwable).getStatusCode());
     }
 
     private static void log(Object object) {

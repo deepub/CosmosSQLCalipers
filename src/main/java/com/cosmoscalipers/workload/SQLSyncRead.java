@@ -1,8 +1,8 @@
 package com.cosmoscalipers.workload;
 
-import com.azure.cosmos.CosmosClientException;
+import com.azure.cosmos.CosmosException;
 import com.azure.cosmos.CosmosContainer;
-import com.azure.cosmos.models.FeedOptions;
+import com.azure.cosmos.models.CosmosQueryRequestOptions;
 import com.azure.cosmos.util.CosmosPagedIterable;
 import com.codahale.metrics.Histogram;
 import com.codahale.metrics.Meter;
@@ -37,9 +37,9 @@ public class SQLSyncRead {
 
     private static void read(CosmosContainer container, String payloadId) {
         String query = "SELECT * FROM coll WHERE coll.payloadId = '" + payloadId + "'";
-        FeedOptions options = new FeedOptions();
+        CosmosQueryRequestOptions options = new CosmosQueryRequestOptions();
         options.setMaxDegreeOfParallelism(2);
-        options.setPopulateQueryMetrics(true);
+        options.setQueryMetricsEnabled(true);
 
         long startTime = System.currentTimeMillis();
         CosmosPagedIterable<Payload> pagedIterable = container.queryItems(query, options, Payload.class);
@@ -61,7 +61,7 @@ public class SQLSyncRead {
     }
 
     private static void log(String msg, Throwable throwable){
-        log(msg + ": " + ((CosmosClientException)throwable).getStatusCode());
+        log(msg + ": " + ((CosmosException)throwable).getStatusCode());
     }
 
     private static void log(Object object) {

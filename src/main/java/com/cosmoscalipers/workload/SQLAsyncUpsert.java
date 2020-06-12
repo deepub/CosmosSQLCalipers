@@ -1,8 +1,8 @@
 package com.cosmoscalipers.workload;
 
 import com.azure.cosmos.CosmosAsyncContainer;
-import com.azure.cosmos.CosmosClientException;
-import com.azure.cosmos.models.CosmosAsyncItemResponse;
+import com.azure.cosmos.CosmosException;
+import com.azure.cosmos.models.CosmosItemResponse;
 import com.azure.cosmos.models.PartitionKey;
 import com.codahale.metrics.Histogram;
 import com.codahale.metrics.Meter;
@@ -15,23 +15,23 @@ import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
 
-public class SQLAsyncUpdate {
-    private static Histogram sqlAsyncUpdateRequestUnits = null;
-    private static Histogram sqlAsyncUpdateLatency = null;
+public class SQLAsyncUpsert {
+    private static Histogram sqlAsyncUpsertRequestUnits = null;
+    private static Histogram sqlAsyncUpsertLatency = null;
     private static Meter throughput = null;
-    private static final Logger LOGGER = LoggerFactory.getLogger(SQLSyncUpdate.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SQLSyncUpsert.class);
 
     public void execute(CosmosAsyncContainer container, List<String> orderIdList, int numberOfOps, MetricRegistry metrics) {
 
-        sqlAsyncUpdateRequestUnits = metrics.histogram("Async update RUs");
-        sqlAsyncUpdateLatency = metrics.histogram("Async update latency (ms)");
-        throughput = metrics.meter("Async update throughput");
+        sqlAsyncUpsertRequestUnits = metrics.histogram("Async upsert RUs");
+        sqlAsyncUpsertLatency = metrics.histogram("Async upsert latency (ms)");
+        throughput = metrics.meter("Async upsert throughput");
         updateOps(container, orderIdList, numberOfOps);
 
     }
 
     private void updateOps(CosmosAsyncContainer container, List<String> orderIdList, int numberOfOps) {
-        log("Running async update workload for " + numberOfOps + " docs...");
+        log("Running async upsert workload for " + numberOfOps + " docs...");
 
         orderIdList.stream()
                 .forEach(item -> update(container, item));
@@ -40,20 +40,20 @@ public class SQLAsyncUpdate {
 
     private static void update(CosmosAsyncContainer container, String orderId) {
 
-        CosmosAsyncItemResponse<Payload> cosmosItemResponse = container.readItem(orderId, new PartitionKey(orderId), Payload.class).block();
+        CosmosItemResponse<Payload> cosmosItemResponse = container.readItem(orderId, new PartitionKey(orderId), Payload.class).block();
         assert cosmosItemResponse != null;
 
         Payload payload = cosmosItemResponse.getItem();
-        payload.setPayload("Updated:" + payload.getPayload());
+        payload.setPayload("Upserted:" + payload.getPayload());
 
-        Mono<CosmosAsyncItemResponse<Payload>> itemResponseMono = container.upsertItem(payload);
+        Mono<CosmosItemResponse<Payload>> itemResponseMono = container.upsertItem(payload);
 
         itemResponseMono.doOnError(throwable -> {
-            log("Error doing async update for payloadId = " + payload.getId());
+            log("Error doing async upsert for payloadId = " + payload.getId());
             log(throwable.getMessage());
         }).doOnSuccess(result -> {
-            sqlAsyncUpdateRequestUnits.update( Math.round(result.getRequestCharge()) );
-            sqlAsyncUpdateLatency.update(result.getRequestLatency().toMillis());
+            sqlAsyncUpsertRequestUnits.update( Math.round(result.getRequestCharge()) );
+            sqlAsyncUpsertLatency.update(result.getDuration().toMillis());
             throughput.mark();
         }).publishOn(Schedulers.elastic()).block();
 
@@ -61,7 +61,7 @@ public class SQLAsyncUpdate {
     }
 
     private static void log(String msg, Throwable throwable){
-        log(msg + ": " + ((CosmosClientException)throwable).getStatusCode());
+        log(msg + ": " + ((CosmosException)throwable).getStatusCode());
     }
 
     private static void log(Object object) {
