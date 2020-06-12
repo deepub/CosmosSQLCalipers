@@ -53,6 +53,14 @@ public class LoadRunner {
                 executeWorkflow(Workflow.SYNC, Constants.CONST_OPERATION_SQL_SYNC_UPSERT, config, true);
                 break;
 
+            case Constants.CONST_OPERATION_SQL_ASYNC_REPLACE:
+                executeWorkflow(Workflow.ASYNC, Constants.CONST_OPERATION_SQL_ASYNC_REPLACE, config, true);
+                break;
+
+            case Constants.CONST_OPERATION_SQL_SYNC_REPLACE:
+                executeWorkflow(Workflow.SYNC, Constants.CONST_OPERATION_SQL_SYNC_REPLACE, config, true);
+                break;
+
             case Constants.CONST_OPERATION_ALL_SYNC_OPS:
                 executeWorkflow(Workflow.SYNC, Constants.CONST_OPERATION_ALL_SYNC_OPS, config, true);
                 break;
@@ -103,9 +111,11 @@ public class LoadRunner {
             asyncClient = buildCosmosAsyncClient(ConnectionMode.DIRECT, maxPoolSize, maxRetryAttempts,
                     retryWaitTimeInSeconds, hostName, masterKey, consistencyLevel);
             asyncDatabase = getDB(asyncClient, databaseName);
+
             if (isContainerDeleted) {
                 deleteContainer(asyncDatabase, collection);
             }
+
             asyncContainer = setupContainer(asyncDatabase, collection, provisionedRUs);
             orderIdList = asyncBootstrap.createDocs(asyncContainer, numberOfItems, payloadSize, metrics);
 
@@ -114,9 +124,11 @@ public class LoadRunner {
             syncClient = buildCosmosClient(ConnectionMode.DIRECT, maxPoolSize, maxRetryAttempts,
                     retryWaitTimeInSeconds, hostName, masterKey, consistencyLevel);
             syncDatabase = getDB(syncClient, databaseName);
+
             if (isContainerDeleted) {
                 deleteContainer(syncDatabase, collection);
             }
+
             container = setupContainer(syncDatabase, collection, provisionedRUs);
             orderIdList = syncBootstrap.createDocs(container, numberOfItems, payloadSize, metrics);
 
@@ -148,16 +160,26 @@ public class LoadRunner {
                 sqlSyncUpsertWorkload(container, orderIdList, numberOfItems, metrics);
                 break;
 
+            case Constants.CONST_OPERATION_SQL_ASYNC_REPLACE:
+                sqlAsyncReplaceWorkload(asyncContainer, orderIdList, numberOfItems, metrics);
+                break;
+
+            case Constants.CONST_OPERATION_SQL_SYNC_REPLACE:
+                sqlSyncReplaceWorkload(container, orderIdList, numberOfItems, metrics);
+                break;
+
             case Constants.CONST_OPERATION_ALL_SYNC_OPS:
                 sqlSyncReadWorkload(container, orderIdList, numberOfItems, metrics);
                 sqlSyncPointReadWorkload(container, orderIdList, numberOfItems, metrics);
                 sqlSyncUpsertWorkload(container, orderIdList, numberOfItems, metrics);
+                sqlSyncReplaceWorkload(container, orderIdList, numberOfItems, metrics);
                 break;
 
             case Constants.CONST_OPERATION_ALL_ASYNC_OPS:
                 sqlAsyncReadWorkload(asyncContainer, orderIdList, numberOfItems, metrics);
                 sqlAsyncPointReadWorkload(asyncContainer, orderIdList, numberOfItems, metrics);
                 sqlAsyncUpsertWorkload(asyncContainer, orderIdList, numberOfItems, metrics);
+                sqlAsyncReplaceWorkload(asyncContainer, orderIdList, numberOfItems, metrics);
                 break;
 
         }
@@ -212,11 +234,23 @@ public class LoadRunner {
         sqlAsyncUpsert.execute(container, orderIdList, numberOfItems, metrics);
     }
 
+    private static void sqlSyncReplaceWorkload(CosmosContainer container, List<String> orderIdList, int numberOfItems, MetricRegistry metrics ) {
+        SQLSyncReplace sqlSyncReplace = new SQLSyncReplace();
+        sqlSyncReplace.execute(container, orderIdList, numberOfItems, metrics);
+    }
+
+    private static void sqlAsyncReplaceWorkload(CosmosAsyncContainer container, List<String> orderIdList, int numberOfItems, MetricRegistry metrics ) {
+        SQLAsyncReplace sqlAsyncReplace = new SQLAsyncReplace();
+        sqlAsyncReplace.execute(container, orderIdList, numberOfItems, metrics);
+    }
+
     private static CosmosDatabase getDB(CosmosClient client, String database) {
+        CosmosDatabaseResponse databaseResponse = client.createDatabaseIfNotExists(database);
         return client.getDatabase(database);
     }
 
     private static CosmosAsyncDatabase getDB(CosmosAsyncClient client, String database) {
+        CosmosDatabaseResponse databaseResponse = client.createDatabaseIfNotExists(database).block();
         return client.getDatabase(database);
     }
 

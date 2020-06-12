@@ -37,7 +37,6 @@ public class AsyncBootstrap{
         asyncWriteLatency = metrics.histogram("Async write latency (ms)");
         asyncThroughput = metrics.meter("Async write throughput");
 
-        log(container.getDatabase().toString());
         log("********************************************************************************************");
         log("Running async SQL bootstrap workload for " + numberOfDocs + " docs...");
 
