@@ -21,9 +21,9 @@ public class SQLSyncPointRead  {
     private static final Logger LOGGER = LoggerFactory.getLogger(SQLSyncPointRead.class);
 
     public void execute(CosmosContainer container, List<String> payloadIdList, int numberOfOps, MetricRegistry metrics) {
-        requestUnits = metrics.histogram("SQL sync point read RUs");
-        readLatency = metrics.histogram("SQL sync point read latency (ms)");
-        throughput = metrics.meter("SQL sync point read throughput");
+        requestUnits = metrics.histogram("Sync point read RUs");
+        readLatency = metrics.histogram("Sync point read latency (ms)");
+        throughput = metrics.meter("Sync point read throughput");
         readOps(container, payloadIdList, numberOfOps);
     }
 

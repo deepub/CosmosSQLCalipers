@@ -21,9 +21,9 @@ public class SQLAsyncRead{
     private static final Logger LOGGER = LoggerFactory.getLogger(SQLAsyncRead.class);
 
     public void execute(CosmosAsyncContainer container, List<String> payloadIdList, int numberOfOps, MetricRegistry metrics) {
-        requestUnits = metrics.histogram("SQL async partition key read RUs");
-        readLatency = metrics.histogram("SQL async partition key read latency (ms)");
-        throughput = metrics.meter("SQL async partition key read throughput");
+        requestUnits = metrics.histogram("Async partition key read RUs");
+        readLatency = metrics.histogram("Async partition key read latency (ms)");
+        throughput = metrics.meter("Async partition key read throughput");
         readOps(container, payloadIdList, numberOfOps);
     }
 

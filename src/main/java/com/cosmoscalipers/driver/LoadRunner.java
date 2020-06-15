@@ -12,6 +12,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.time.Duration;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -24,7 +26,7 @@ public class LoadRunner {
 
     public void execute(BenchmarkConfig config) {
 
-        ScheduledReporter reporter = startReport(config.getReporter());
+        ScheduledReporter reporter = startReport(config.getReporter(), config);
         String operation = config.getOperation();
 
         switch(operation) {
@@ -244,12 +246,12 @@ public class LoadRunner {
         sqlAsyncReplace.execute(container, orderIdList, numberOfItems, metrics);
     }
 
-    private static CosmosDatabase getDB(CosmosClient client, String database) {
+    private static CosmosDatabase getDB(CosmosClient client, String database) throws CosmosException {
         CosmosDatabaseResponse databaseResponse = client.createDatabaseIfNotExists(database);
         return client.getDatabase(database);
     }
 
-    private static CosmosAsyncDatabase getDB(CosmosAsyncClient client, String database) {
+    private static CosmosAsyncDatabase getDB(CosmosAsyncClient client, String database) throws CosmosException {
         CosmosDatabaseResponse databaseResponse = client.createDatabaseIfNotExists(database).block();
         return client.getDatabase(database);
     }
@@ -374,9 +376,12 @@ public class LoadRunner {
 
     }
 
-    private static ScheduledReporter startReport(String resultsReporter) {
+    private static ScheduledReporter startReport(String resultsReporter, BenchmarkConfig config) {
 
         ScheduledReporter reporter = null;
+        ConsistencyLevel consistencyLevel = config.getConsistencyLevel();
+        String consistency = consistencyLevel.toString().toLowerCase();
+        String dirPostfix = consistency + "_consistency_" + LocalDate.now().format(DateTimeFormatter.ofPattern("MMDDYYYY"));
 
         if (resultsReporter.equalsIgnoreCase(Constants.CONST_CONSOLEREPORTER)) {
             reporter = ConsoleReporter.forRegistry(metrics)
@@ -386,7 +391,7 @@ public class LoadRunner {
 
         } else if (resultsReporter.equalsIgnoreCase(Constants.CONST_CSVREPORTER)) {
 
-            File directory = new File(Constants.CONST_CSVFILES_LOCATION);
+            File directory = new File(Constants.CONST_CSVFILES_LOCATION + dirPostfix);
             if(!directory.exists()) {
                 directory.mkdir();
             }

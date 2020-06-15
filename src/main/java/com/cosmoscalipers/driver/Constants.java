@@ -39,6 +39,6 @@ public class Constants {
 
     public static final String CONST_CONSOLEREPORTER = "CONSOLE";
     public static final String CONST_CSVREPORTER = "CSV";
-    public static final String CONST_CSVFILES_LOCATION = "output/";
+    public static final String CONST_CSVFILES_LOCATION = "output/logs/";
 
 }
