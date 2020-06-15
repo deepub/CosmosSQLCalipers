@@ -21,6 +21,16 @@ This section provides the latest updates
 CosmosSQLCalipers relies on the azure-cosmos SDK. The current version is v4.0.1.
 
 #### Test Results
+
+###### v4 client
+Following consistency levels are running fine:
+* STRONG
+* BOUNDED_STALENESS
+* SESSION
+* CONSISTENCY_PREFIX
+* EVENTUAL
+
+###### v3 client
 Following consistency levels are running fine:
 * STRONG
 * SESSION
@@ -62,7 +72,7 @@ Operations that can be exercised using this tool includes:
     1. Select region depending on your deployment preferences
     1. Single or multiple regions
     1. Choose an active/active or active/passive topology
-2. Run the benchmark test against the provisioned Cosmos account     
+2. Run the benchmark test against the provisioned Cosmos account.     
 
 ## Program arguments
 ````

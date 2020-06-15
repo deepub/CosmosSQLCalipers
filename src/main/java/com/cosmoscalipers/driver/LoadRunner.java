@@ -381,7 +381,7 @@ public class LoadRunner {
         ScheduledReporter reporter = null;
         ConsistencyLevel consistencyLevel = config.getConsistencyLevel();
         String consistency = consistencyLevel.toString().toLowerCase();
-        String dirPostfix = consistency + "_consistency_" + LocalDate.now().format(DateTimeFormatter.ofPattern("MMDDYYYY"));
+        String dirPostfix = consistency + "_consistency_" + LocalDate.now().format(DateTimeFormatter.ofPattern("MMddyyyy"));
 
         if (resultsReporter.equalsIgnoreCase(Constants.CONST_CONSOLEREPORTER)) {
             reporter = ConsoleReporter.forRegistry(metrics)
