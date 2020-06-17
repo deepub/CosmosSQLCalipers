@@ -10,7 +10,9 @@ import com.cosmoscalipers.workload.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Closeable;
 import java.io.File;
+import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -188,10 +190,10 @@ public class LoadRunner {
 
         if(workflow == Workflow.ASYNC) {
             sqlAsyncDeleteWorkload(asyncContainer, orderIdList, numberOfItems, metrics);
-            asyncClient.close();
+            teardown(asyncClient, false);
         } else {
             sqlSyncDeleteWorkload(container, orderIdList, numberOfItems, metrics);
-            syncClient.close();
+            teardown(syncClient, false);
         }
 
     }
@@ -246,14 +248,40 @@ public class LoadRunner {
         sqlAsyncReplace.execute(container, orderIdList, numberOfItems, metrics);
     }
 
-    private static CosmosDatabase getDB(CosmosClient client, String database) throws CosmosException {
-        CosmosDatabaseResponse databaseResponse = client.createDatabaseIfNotExists(database);
+    private static CosmosDatabase getDB(CosmosClient client, String database) {
+        CosmosDatabaseResponse databaseResponse = null;
+        try {
+            databaseResponse = client.createDatabaseIfNotExists(database);
+        } catch(CosmosException e) {
+            e.printStackTrace();
+            teardown(client, true);
+        }
+
         return client.getDatabase(database);
     }
 
-    private static CosmosAsyncDatabase getDB(CosmosAsyncClient client, String database) throws CosmosException {
-        CosmosDatabaseResponse databaseResponse = client.createDatabaseIfNotExists(database).block();
+    private static CosmosAsyncDatabase getDB(CosmosAsyncClient client, String database) {
+        CosmosDatabaseResponse databaseResponse = null;
+        try {
+            databaseResponse = client.createDatabaseIfNotExists(database).block();
+        } catch(CosmosException e) {
+            e.printStackTrace();
+            teardown(client, true);
+        }
+
         return client.getDatabase(database);
+    }
+
+    private static void teardown(Closeable client, boolean isShutdown) {
+        try {
+            client.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if(isShutdown) {
+            System.exit(0);
+        }
     }
 
     private static ThrottlingRetryOptions getRetryOptions(int maxRetryAttempts,

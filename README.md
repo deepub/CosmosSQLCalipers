@@ -22,7 +22,8 @@ CosmosSQLCalipers relies on the azure-cosmos SDK. The current version is v4.0.1.
 
 #### Test Results
 
-###### v4 client
+**###### v4 client**
+
 Following consistency levels are running fine:
 * STRONG
 * BOUNDED_STALENESS
@@ -30,7 +31,8 @@ Following consistency levels are running fine:
 * CONSISTENCY_PREFIX
 * EVENTUAL
 
-###### v3 client
+**###### v3 client**
+
 Following consistency levels are running fine:
 * STRONG
 * SESSION
