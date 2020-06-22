@@ -1,6 +1,7 @@
 package com.cosmoscalipers.workload;
 
 import com.azure.cosmos.CosmosAsyncContainer;
+import com.azure.cosmos.CosmosDiagnostics;
 import com.azure.cosmos.CosmosException;
 import com.azure.cosmos.models.CosmosQueryRequestOptions;
 import com.azure.cosmos.util.CosmosPagedFlux;
@@ -47,11 +48,13 @@ public class SQLAsyncRead{
         try {
 
             queryFlux.byPage().subscribe(fluxResponse -> {
+                long difference = System.currentTimeMillis()  - startTime;
                 requestUnits.update( Math.round(fluxResponse.getRequestCharge())  );
                 throughput.mark();
-//                log(  fluxResponse.getResults()  );
-//                log(  fluxResponse.getFeedResponseDiagnostics().toString());
-
+                readLatency.update(difference);
+//                log("Call Latency (ms): " + difference);
+//                log("Diagnostics: " + fluxResponse.getCosmosDiagnostics().toString());
+ 
             },
             error -> {
                 if(error instanceof CosmosException) {
@@ -68,10 +71,6 @@ public class SQLAsyncRead{
             System.out.println("******* Error occurred while executing query *******");
             System.out.println(e.getMessage());
         }
-
-
-        long difference = System.currentTimeMillis()  - startTime;
-        readLatency.update(difference);
 
     }
 
