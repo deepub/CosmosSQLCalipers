@@ -4,3 +4,8 @@ Document sizes tested:
 1000, 5000, 10000, 50000, 100000, 200000, 400000
 Additional notes
 - Provisioned RUs = 400
+- Single region
+- MaxRetryWaitTimeInSeconds = 10, MaxRetryAttempts = 100 and MaxPoolSize = 10
+
+Replace time dimension with payload size
+find . -type f -name '*.csv' -exec sed -i '' s/1592790677/payload_400k/ {} +
