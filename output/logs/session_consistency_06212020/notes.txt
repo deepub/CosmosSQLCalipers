@@ -1,0 +1,6 @@
+Overall command line arguments
+--hostname https://xxx.documents.azure.com:443/ --database demo --collection orders --key xxx --numberofdocs 100 --payloadSize 400000 --consistencylevel SESSION --provisionedrus 400 --maxpoolsize 10 --maxretryattempts 100 --maxretrywaittimeinseconds 10 --operation SQL_ALL --reporter CSV
+Document sizes tested:
+1000, 5000, 10000, 50000, 100000, 200000, 400000
+Additional notes
+- Provisioned RUs = 400

@@ -1,0 +1,2 @@
+t,count,mean_rate,m1_rate,m5_rate,m15_rate,rate_unit
+1592788641,100,5.349911,15.229213,17.252208,17.615438,events/second

@@ -1,0 +1,343 @@
+host name : https://dbcosmosdemodb.documents.azure.com:443/
+database : demo
+Payload size : 1000
+********************************************************************************************
+Running sync SQL bootstrap workload for 100 docs...
+WARNING: An illegal reflective access operation has occurred
+WARNING: Illegal reflective access by com.fasterxml.jackson.module.afterburner.util.MyClassLoader (file:/C:/Users/deepub/.m2/repository/com/fasterxml/jackson/module/jackson-module-afterburner/2.10.1/jackson-module-afterburner-2.10.1.jar) to method java.lang.ClassLoader.findLoadedClass(java.lang.String)
+WARNING: Please consider reporting this to the maintainers of com.fasterxml.jackson.module.afterburner.util.MyClassLoader
+WARNING: Use --illegal-access=warn to enable warnings of further illegal reflective access operations
+WARNING: All illegal access operations will be denied in a future release
+Running sync partition key based SQL query workload for 100 docs...
+Running sync point read workload 100 docs...
+Running sync update workload for 100 docs...
+Running sync delete workload for 100 docs...
+********************************************************************************************
+Payload size : 1000
+com.azure.cosmos.CosmosAsyncDatabase@49964d75
+********************************************************************************************
+Running async SQL bootstrap workload for 100 docs...
+Running async partition key based SQL query workload for 100 docs...
+Running async point read workload for 100 docs...
+Running async update workload for 100 docs...
+Running async delete workload for 100 docs...
+********************************************************************************************
+6/3/20, 1:18:17 PM =============================================================
+
+-- Counters --------------------------------------------------------------------
+Async write failure counter
+             count = 0
+Async write success counter
+             count = 100
+Sync write failure counter
+             count = 0
+Sync write success counter
+             count = 100
+
+-- Histograms ------------------------------------------------------------------
+Async delete RUs
+             count = 100
+               min = 7
+               max = 7
+              mean = 7.00
+            stddev = 0.00
+            median = 7.00
+              75% <= 7.00
+              95% <= 7.00
+              98% <= 7.00
+              99% <= 7.00
+            99.9% <= 7.00
+Async delete latency (ms)
+             count = 100
+               min = 15
+               max = 49
+              mean = 28.93
+            stddev = 8.78
+            median = 31.00
+              75% <= 31.00
+              95% <= 46.00
+              98% <= 47.00
+              99% <= 49.00
+            99.9% <= 49.00
+Async update RUs
+             count = 100
+               min = 13
+               max = 13
+              mean = 13.00
+            stddev = 0.00
+            median = 13.00
+              75% <= 13.00
+              95% <= 13.00
+              98% <= 13.00
+              99% <= 13.00
+            99.9% <= 13.00
+Async update latency (ms)
+             count = 100
+               min = 15
+               max = 62
+              mean = 31.88
+            stddev = 7.39
+            median = 31.00
+              75% <= 33.00
+              95% <= 46.00
+              98% <= 48.00
+              99% <= 48.00
+            99.9% <= 62.00
+Async write RUs
+             count = 100
+               min = 7
+               max = 7
+              mean = 7.00
+            stddev = 0.00
+            median = 7.00
+              75% <= 7.00
+              95% <= 7.00
+              98% <= 7.00
+              99% <= 7.00
+            99.9% <= 7.00
+Async write latency (ms)
+             count = 100
+               min = 15
+               max = 368
+              mean = 35.66
+            stddev = 33.94
+            median = 31.00
+              75% <= 35.00
+              95% <= 47.00
+              98% <= 51.00
+              99% <= 52.00
+            99.9% <= 368.00
+SQL async partition key read RUs
+             count = 100
+               min = 3
+               max = 3
+              mean = 3.00
+            stddev = 0.00
+            median = 3.00
+              75% <= 3.00
+              95% <= 3.00
+              98% <= 3.00
+              99% <= 3.00
+            99.9% <= 3.00
+SQL async partition key read latency (ms)
+             count = 100
+               min = 0
+               max = 101
+              mean = 3.33
+            stddev = 11.81
+            median = 0.00
+              75% <= 0.00
+              95% <= 16.00
+              98% <= 33.00
+              99% <= 40.00
+            99.9% <= 101.00
+SQL async point read RUs
+             count = 100
+               min = 1
+               max = 1
+              mean = 1.00
+            stddev = 0.00
+            median = 1.00
+              75% <= 1.00
+              95% <= 1.00
+              98% <= 1.00
+              99% <= 1.00
+            99.9% <= 1.00
+SQL async point read latency (ms)
+             count = 100
+               min = 15
+               max = 77
+              mean = 27.05
+            stddev = 9.39
+            median = 31.00
+              75% <= 31.00
+              95% <= 36.00
+              98% <= 46.00
+              99% <= 46.00
+            99.9% <= 77.00
+SQL sync partition key read RUs
+             count = 100
+               min = 3
+               max = 3
+              mean = 3.00
+            stddev = 0.00
+            median = 3.00
+              75% <= 3.00
+              95% <= 3.00
+              98% <= 3.00
+              99% <= 3.00
+            99.9% <= 3.00
+SQL sync partition key read latency (ms)
+             count = 100
+               min = 43
+               max = 222
+              mean = 73.43
+            stddev = 29.49
+            median = 63.00
+              75% <= 78.00
+              95% <= 140.00
+              98% <= 146.00
+              99% <= 160.00
+            99.9% <= 222.00
+SQL sync point read RUs
+             count = 100
+               min = 1
+               max = 1
+              mean = 1.00
+            stddev = 0.00
+            median = 1.00
+              75% <= 1.00
+              95% <= 1.00
+              98% <= 1.00
+              99% <= 1.00
+            99.9% <= 1.00
+SQL sync point read latency (ms)
+             count = 100
+               min = 15
+               max = 44
+              mean = 25.40
+            stddev = 7.97
+            median = 31.00
+              75% <= 31.00
+              95% <= 36.00
+              98% <= 42.00
+              99% <= 44.00
+            99.9% <= 44.00
+Sync Update RUs
+             count = 100
+               min = 13
+               max = 13
+              mean = 13.00
+            stddev = 0.00
+            median = 13.00
+              75% <= 13.00
+              95% <= 13.00
+              98% <= 13.00
+              99% <= 13.00
+            99.9% <= 13.00
+Sync delete RUs
+             count = 100
+               min = 7
+               max = 7
+              mean = 7.00
+            stddev = 0.00
+            median = 7.00
+              75% <= 7.00
+              95% <= 7.00
+              98% <= 7.00
+              99% <= 7.00
+            99.9% <= 7.00
+Sync delete latency (ms)
+             count = 100
+               min = 15
+               max = 52
+              mean = 32.17
+            stddev = 8.95
+            median = 31.00
+              75% <= 33.00
+              95% <= 47.00
+              98% <= 52.00
+              99% <= 52.00
+            99.9% <= 52.00
+Sync update latency (ms)
+             count = 100
+               min = 19
+               max = 66
+              mean = 33.25
+            stddev = 6.53
+            median = 31.00
+              75% <= 33.00
+              95% <= 47.00
+              98% <= 47.00
+              99% <= 48.00
+            99.9% <= 66.00
+Sync write RUs
+             count = 100
+               min = 7
+               max = 7
+              mean = 7.00
+            stddev = 0.00
+            median = 7.00
+              75% <= 7.00
+              95% <= 7.00
+              98% <= 7.00
+              99% <= 7.00
+            99.9% <= 7.00
+Sync write latency (ms)
+             count = 100
+               min = 15
+               max = 10480
+              mean = 140.85
+            stddev = 1022.03
+            median = 31.00
+              75% <= 36.00
+              95% <= 93.00
+              98% <= 207.00
+              99% <= 384.00
+            99.9% <= 10480.00
+
+-- Meters ----------------------------------------------------------------------
+Async delete throughput
+             count = 100
+         mean rate = 12.49 events/second
+     1-minute rate = 20.00 events/second
+     5-minute rate = 20.00 events/second
+    15-minute rate = 20.00 events/second
+Async update throughput
+             count = 100
+         mean rate = 6.24 events/second
+     1-minute rate = 14.30 events/second
+     5-minute rate = 16.11 events/second
+    15-minute rate = 16.44 events/second
+Async write throughput
+             count = 100
+         mean rate = 4.37 events/second
+     1-minute rate = 15.58 events/second
+     5-minute rate = 19.02 events/second
+    15-minute rate = 19.67 events/second
+SQL async partition key read throughput
+             count = 100
+         mean rate = 5.20 events/second
+     1-minute rate = 16.93 events/second
+     5-minute rate = 19.34 events/second
+    15-minute rate = 19.78 events/second
+SQL async point read throughput
+             count = 100
+         mean rate = 5.29 events/second
+     1-minute rate = 16.93 events/second
+     5-minute rate = 19.34 events/second
+    15-minute rate = 19.78 events/second
+SQL sync partition key read throughput
+             count = 100
+         mean rate = 1.97 events/second
+     1-minute rate = 5.91 events/second
+     5-minute rate = 10.27 events/second
+    15-minute rate = 11.27 events/second
+SQL sync point read throughput
+             count = 100
+         mean rate = 2.31 events/second
+     1-minute rate = 11.16 events/second
+     5-minute rate = 17.80 events/second
+    15-minute rate = 19.24 events/second
+Sync delete throughput
+             count = 100
+         mean rate = 3.77 events/second
+     1-minute rate = 14.33 events/second
+     5-minute rate = 18.71 events/second
+    15-minute rate = 19.56 events/second
+Sync update throughput
+             count = 100
+         mean rate = 2.46 events/second
+     1-minute rate = 3.88 events/second
+     5-minute rate = 5.20 events/second
+    15-minute rate = 5.46 events/second
+Sync write throughput
+             count = 100
+         mean rate = 1.53 events/second
+     1-minute rate = 0.69 events/second
+     5-minute rate = 0.28 events/second
+    15-minute rate = 0.10 events/second
+
+
+
+Process finished with exit code 0
