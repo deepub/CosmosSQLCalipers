@@ -1,17 +1,15 @@
 package com.cosmoscalipers.workload;
 
 import com.azure.cosmos.CosmosAsyncContainer;
-import com.azure.cosmos.CosmosDiagnostics;
 import com.azure.cosmos.CosmosException;
 import com.azure.cosmos.models.CosmosQueryRequestOptions;
-import com.azure.cosmos.util.CosmosPagedFlux;
+import com.azure.cosmos.models.FeedResponse;
 import com.codahale.metrics.Histogram;
 import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricRegistry;
 import com.cosmoscalipers.driver.Payload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.util.List;
 
 public class SQLAsyncRead{
@@ -42,34 +40,29 @@ public class SQLAsyncRead{
         options.setMaxDegreeOfParallelism(2);
         options.setQueryMetricsEnabled(true);
 
-        long startTime = System.currentTimeMillis();
-        CosmosPagedFlux<Payload> queryFlux = container.queryItems(query, options, Payload.class);
-
         try {
+            long startTime = System.currentTimeMillis();
+            List<FeedResponse<Payload>> payloadList = container.queryItems(query, options, Payload.class).byPage().collectList().block();
+            payloadList.stream()
+                    .forEach(fluxResponse -> {
+                        long difference = System.currentTimeMillis()  - startTime;
+                        requestUnits.update( Math.round(fluxResponse.getRequestCharge())  );
+                        throughput.mark();
+                        readLatency.update(difference);
+//                        log("Call Latency (ms): " + difference);
+//                        log("Diagnostics: " + fluxResponse.getCosmosDiagnostics().toString());
 
-            queryFlux.byPage().subscribe(fluxResponse -> {
-                long difference = System.currentTimeMillis()  - startTime;
-                requestUnits.update( Math.round(fluxResponse.getRequestCharge())  );
-                throughput.mark();
-                readLatency.update(difference);
-//                log("Call Latency (ms): " + difference);
-//                log("Diagnostics: " + fluxResponse.getCosmosDiagnostics().toString());
- 
-            },
-            error -> {
-                if(error instanceof CosmosException) {
-                    CosmosException cosmosClientException = (CosmosException) error;
-                    cosmosClientException.printStackTrace();
-                    log("Error occurred while executing query");
-                } else {
-                    error.printStackTrace();
-                }
+                    });
+
+        } catch(Exception error)
+        {
+            if(error instanceof CosmosException) {
+                CosmosException cosmosClientException = (CosmosException) error;
+                cosmosClientException.printStackTrace();
+                log("Error occurred while executing query");
+            } else {
+                error.printStackTrace();
             }
-                );
-
-        } catch (Exception e) {
-            System.out.println("******* Error occurred while executing query *******");
-            System.out.println(e.getMessage());
         }
 
     }
