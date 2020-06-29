@@ -10,9 +10,12 @@ Provide commentary on the RU consumption pattern for this test run. Please refer
 - Each replace and upsert test adds an additional prefix called 'replaced' and 'upserted'
 - RUs are collected using Histograms and that can only be an int or a long. Hence, I am using the Math.round() function to round off the RUs
 - Test run executed with operation = SQL_ALL 
+- Documents created with a single partition key index.
 
 ## Observations
-- As expected, RUs for CRUD operations remain the same irrespective of the execution mode - sync or async. You can refer to ![sync CRUD operation stats](Sync%20CRUD%20ops.xlsx) and ![async CRUD operation stats](Async%20CRUD%20Ops.xlsx) for details.
+
+### CRUD operations
+- As expected, RUs for CRUD operations remain the same irrespective of the execution mode - sync or async
 - For the sake of this discussion, I'll present a summary of the data collected in the async run
 
 | Operation and payload size | RUs Consumed |
@@ -24,7 +27,7 @@ Provide commentary on the RU consumption pattern for this test run. Please refer
 | async_write_100k | 49 |
 | async_write_200k | 99 |
 | async_write_400k | 186 |
-| sync_delete_1k | 7 |
+| async_delete_1k | 7 |
 | async_delete_5k | 8 |
 | async_delete_10k | 10 |
 | async_delete_50k | 24 |
@@ -52,7 +55,38 @@ Provide commentary on the RU consumption pattern for this test run. Please refer
 - The above graph shows a very interesting pattern. While create and delete operations consume the exact same RUs for a given payload, replace and upsert operations result in a 2x RU consumption. This implies that update/replace operations are twice as expensive as an insert or delete. A typical OLTP use case will usually consist of document creation followed by multiple updates to that document during the entire data lifecycle. This RU consumption pattern directly implies in a post creation cost escalation.
 Furthermore, the ![Cosmos capacity calculator](https://cosmos.azure.com/capacitycalculator/) does not help in the correct cost estimation since the writes/sec/region only accounts for document creation. Given that replace/upsert is 2x the cost of a create/delete, we can make the case that replace or upsert/sec/region should be called out separately.
 
+### Read operations
+The Cosmos SQL API provides two ways to perform read operations.
+- Point reads. Supposed to be more efficient both in terms of latency and RU consumption. A document of size <= 1KB will consume 1 RU. 
+- Partition key based SQL queries. Undergoes multiple phases during execution so typically more expensive. A document of size <= 1KB will consume 3 RUs.
+- The data gathered from the test shows a very interesting pattern
+
+| Operation and payload size | RUs Consumed |
+| --- | --- |
+| async_point_read_1k | 1 |
+| async_point_read_5k | 1 |
+| async_point_read_10k | 2 |
+| async_point_read_50k | 5 |
+| async_point_read_100k | 10 |
+| async_point_read_200k | 20 |
+| async_point_read_400k | 41 |
+| async_partition_read_1k | 3 |
+| async_partition_read_5k | 3 |
+| async_partition_read_10k | 3 |
+| async_partition_read_50k | 4 |
+| async_partition_read_100k | 7 |
+| async_partition_read_200k | 10 |
+| async_partition_read_400k | 17 |
+
+![Async point read vs partition key RU consumption](Async%20point%20read%20vs%20partition%20read%20RU%20consumption.png)
+
+- Point read operations for document sizes up to 5KB cost 1 RU. This is the lowest tier.
+- Partition key read operations start at 3 RUs and remain at that level up to 10KB.
+- As document sizes start increasing, point read RU costs start becoming far more expensive compared to partition key based read operations. At the max level, a point read for a 400KB size document costs 41 RUs compared to 17 RUs for the same document read using the partition key.
  
+ 
+
+  
         
 
 
