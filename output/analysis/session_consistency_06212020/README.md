@@ -15,7 +15,7 @@ Provide commentary on the RU consumption pattern for this test run. Please refer
 - As expected, RUs for CRUD operations remain the same irrespective of the execution mode - sync or async. You can refer to ![sync CRUD operation stats](Sync%20CRUD%20ops.xlsx) and ![async CRUD operation stats](Async%20CRUD%20Ops.xlsx) for details.
 - For the sake of this discussion, I'll present a summary of the data collected in the async run
 
-| payload | RUs Consumed |
+| Operation and payload size | RUs Consumed |
 | --- | --- |
 | async_write_1k | 7 |
 | async_write_5k |	8 |
