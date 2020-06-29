@@ -53,7 +53,8 @@ Provide commentary on the RU consumption pattern for this test run. Please refer
 
 - The size of the payload is directly proportional to the RU consumption. The bigger the document, the more the RUs you will end up being charged. Scalability and cost efficiency in Cosmos DB comes from leveraging smaller document sizes. 
 - The above graph shows a very interesting pattern. While create and delete operations consume the exact same RUs for a given payload, replace and upsert operations result in a 2x RU consumption. This implies that update/replace operations are twice as expensive as an insert or delete. A typical OLTP use case will usually consist of document creation followed by multiple updates to that document during the entire data lifecycle. This RU consumption pattern directly implies in a post creation cost escalation.
-Furthermore, the ![Cosmos capacity calculator](Cosmos%20Capacity%20Calculator.png) does not help in the correct cost estimation since the writes/sec/region only accounts for document creation. Given that replace/upsert is 2x the cost of a create/delete, we can make the case that replace or upsert/sec/region should be called out separately.
+Furthermore, the Cosmos capacity calculator  does not help in the correct cost estimation since the writes/sec/region only accounts for document creation. Given that replace/upsert is 2x the cost of a create/delete, we can make the case that replace or upsert/sec/region should be called out separately.
+ ![Cosmos capacity calculator](Cosmos%20Capacity%20Calculator.png)
 
 ### Read operations
 The Cosmos SQL API provides two ways to perform read operations.
