@@ -16,43 +16,19 @@ Provide commentary on the RU consumption pattern for this test run. Please refer
 
 ### CRUD operations
 - As expected, RUs for CRUD operations remain the same irrespective of the execution mode - sync or async
-- For the sake of this discussion, I'll present a summary of the data collected in the async run
+- I'll present a summary of the data collected in this run
 
-| Operation and payload size | RUs Consumed |
-| --- | --- |
-| async_write_1k | 7 |
-| async_write_5k |	8 |
-| async_write_10k |	10 |
-| async_write_50k |	24 |
-| async_write_100k | 49 |
-| async_write_200k | 99 |
-| async_write_400k | 186 |
-| async_delete_1k | 7 |
-| async_delete_5k | 8 |
-| async_delete_10k | 10 |
-| async_delete_50k | 24 |
-| async_delete_100k | 49 |
-| async_delete_200k | 99 |
-| async_delete_400k | 186 |
-| async_replace_1k | 13 |
-| async_replace_5k | 14 |
-| async_replace_10k | 19 |
-| async_replace_50k | 46 |
-| async_replace_100k | 97 |
-| async_replace_200k | 197 |
-| async_replace_400k | 370 |
-| async_upsert_1k | 13 |
-| async_upsert_5k | 14 |
-| async_upsert_10k | 19 |
-| async_upsert_50k | 46 |
-| async_upsert_100k | 97 |
-| async_upsert_200k	| 197 |
-| async_upsert_400k | 370 |
+| Operation | Doc Size 1k | Doc Size 5k | Doc Size 10k | Doc Size 50k | Doc Size 100k | Doc Size 200k | Doc Size 400k |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| write | 7 | 8 | 10 | 24 | 49 | 99 | 186 |
+| delete | 7 | 8 | 10 | 24 | 49 | 99 | 186 |
+| replace | 13 | 14 | 19 | 46 | 97 | 197 | 370 |
+| upsert | 13 | 14 | 19 | 46 | 97 | 197 | 370 |
 
-![CRUD operations RU consumption](Async%20CRUD%20op%20RUs.png)
+![CRUD operations RU consumption](RU%20consumption%20by%20CRUD%20op.png)
 
 - The size of the payload is directly proportional to the RU consumption. The bigger the document, the more the RUs you will end up being charged. Scalability and cost efficiency in Cosmos DB comes from leveraging smaller document sizes. 
-- The above graph shows a very interesting pattern. While create and delete operations consume the exact same RUs for a given payload, replace and upsert operations result in a 2x RU consumption. This implies that update/replace operations are twice as expensive as an insert or delete. A typical OLTP use case will usually consist of document creation followed by multiple updates to that document during the entire data lifecycle. This RU consumption pattern directly implies in a post creation cost escalation.
+- The above graph shows a very interesting pattern. While create and delete operations consume exactly the same RUs for a given payload, replace and upsert operations result in a 2x RU consumption. This implies that update/replace operations are twice as expensive as an insert or delete. A typical OLTP use case will usually consist of document creation followed by multiple updates to that document during the entire data lifecycle. This RU consumption pattern directly implies in a post creation cost escalation.
 Furthermore, the Cosmos capacity calculator  does not help in the correct cost estimation since the writes/sec/region only accounts for document creation. Given that replace/upsert is 2x the cost of a create/delete, we can make the case that replace or upsert/sec/region should be called out separately.
  ![Cosmos capacity calculator](Cosmos%20Capacity%20Calculator.png)
 
