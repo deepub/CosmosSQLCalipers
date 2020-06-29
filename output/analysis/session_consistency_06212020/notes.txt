@@ -8,4 +8,4 @@ Additional notes
 - MaxRetryWaitTimeInSeconds = 10, MaxRetryAttempts = 100 and MaxPoolSize = 10
 
 Replace time dimension with payload size
-find . -type f -name '*.csv' -exec sed -i '' s/1592790677/payload_400k/ {} +
+Ex: find . -type f -name '*.csv' -exec sed -i '' s/1592790677/payload_400k/ {} +
