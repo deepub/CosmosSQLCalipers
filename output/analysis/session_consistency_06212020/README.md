@@ -47,7 +47,7 @@ The Cosmos SQL API provides two ways to perform read operations.
 
 - Point read operations for document sizes up to 5KB cost 1 RU. This is the lowest tier.
 - Partition key read operations start at 3 RUs and remain at that level up to 10KB.
-- As document sizes start increasing, point read RU costs start becoming far more expensive compared to partition key based read operations. At the max level, a point read for a 400KB size document costs 41 RUs compared to 17 RUs for the same document read using the partition key.
+- As document sizes start increasing, point read RU costs start becoming far more expensive compared to partition key based read operations. 50K document size is the tipping point in this test. At the max level, a point read for a 400KB size document costs 41 RUs compared to 17 RUs for the same document read using the partition key.
  
  
 
