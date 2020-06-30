@@ -22,7 +22,7 @@ CosmosSQLCalipers relies on the azure-cosmos SDK. The current version is v4.0.1.
 
 #### Test result links
 
-![Summary analysis for test run on June 21st 2020](https://github.com/deepub/CosmosSQLCalipers/blob/master/output/analysis/session_consistency_06212020/README.md) 
+[Summary analysis for test run on June 21st 2020](https://github.com/deepub/CosmosSQLCalipers/blob/master/output/analysis/session_consistency_06212020/README.md) 
 
 ##### *v4 client*
 
