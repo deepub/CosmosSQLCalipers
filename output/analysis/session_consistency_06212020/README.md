@@ -38,24 +38,12 @@ The Cosmos SQL API provides two ways to perform read operations.
 - Partition key based SQL queries. Undergoes multiple phases during execution so typically more expensive. A document of size <= 1KB will consume 3 RUs.
 - The data gathered from the test shows a very interesting pattern
 
-| Operation and payload size | RUs Consumed |
-| --- | --- |
-| async_point_read_1k | 1 |
-| async_point_read_5k | 1 |
-| async_point_read_10k | 2 |
-| async_point_read_50k | 5 |
-| async_point_read_100k | 10 |
-| async_point_read_200k | 20 |
-| async_point_read_400k | 41 |
-| async_partition_read_1k | 3 |
-| async_partition_read_5k | 3 |
-| async_partition_read_10k | 3 |
-| async_partition_read_50k | 4 |
-| async_partition_read_100k | 7 |
-| async_partition_read_200k | 10 |
-| async_partition_read_400k | 17 |
+| Operation | Doc size 1k | Doc size 5k | Doc size 10k | Doc size 50k | Doc size 100k | Doc size 200k | Doc size 400k |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| point read | 1 | 1 | 2 | 5 | 10 | 20 | 41 |
+| partition key SELECT | 3 | 3 | 3 | 4 | 7 | 10 | 17 |
 
-![Async point read vs partition key RU consumption](Async%20point%20read%20vs%20partition%20read%20RU%20consumption.png)
+![Point read vs partition key RU consumption](Point%20read%20vs%20partition%20key%20ops.png)
 
 - Point read operations for document sizes up to 5KB cost 1 RU. This is the lowest tier.
 - Partition key read operations start at 3 RUs and remain at that level up to 10KB.
