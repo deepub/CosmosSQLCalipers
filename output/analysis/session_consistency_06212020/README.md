@@ -16,7 +16,7 @@ Provide commentary on the RU consumption pattern for this test run. Please refer
 
 ### CRUD operations
 - As expected, RUs for CRUD operations remain the same irrespective of the execution mode - sync or async
-- I'll present a summary of the data collected in this run
+- Below is a summary of the RUs consumed for various document sizes
 
 | Operation | Doc Size 1k | Doc Size 5k | Doc Size 10k | Doc Size 50k | Doc Size 100k | Doc Size 200k | Doc Size 400k |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -36,7 +36,7 @@ Furthermore, the Cosmos capacity calculator  does not help in the correct cost e
 The Cosmos SQL API provides two ways to perform read operations.
 - Point reads. Supposed to be more efficient both in terms of latency and RU consumption. A document of size <= 1KB will consume 1 RU. 
 - Partition key based SQL queries. Undergoes multiple phases during execution so typically more expensive. A document of size <= 1KB will consume 3 RUs.
-- The data gathered from the test shows a very interesting pattern
+- The data gathered from the test shows a very interesting pattern in terms of RU consumption
 
 | Operation | Doc size 1k | Doc size 5k | Doc size 10k | Doc size 50k | Doc size 100k | Doc size 200k | Doc size 400k |
 | --- | --- | --- | --- | --- | --- | --- | --- |
