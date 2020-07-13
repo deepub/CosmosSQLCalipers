@@ -39,16 +39,16 @@ The Cosmos SQL API provides two ways to perform read operations.
 - Partition key based SQL queries. Undergoes multiple phases during execution so typically more expensive. A document of size <= 1KB will consume 3 RUs.
 - The data gathered from the test shows a very interesting pattern in terms of RU consumption
 
-| Operation | Doc size 1k | Doc size 5k | Doc size 10k | Doc size 50k | Doc size 100k | Doc size 200k | Doc size 400k |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| eventual point read | 1 | 1 | 2 | 5 | 10 | 20 | 41 |
-| eventual partiion key SELECT | 3 | 3 | 3 | 4 | 5 | 6 | 10 |
-| session point read | 1 | 1 | 2 | 5 | 10 | 20 | 41 |
-| session partition key SELECT | 3 | 3 | 3 | 4 | 7 | 10 | 17 |
-| bs point read | 2 | 3 | 3 | 10 | 20 | 41 | 82 |
-| bs partition key SELECT | 6 | 6 | 6 | 7 | 9 | 12 | 19 |
-| strong point read | 2 | 3 | 3 | 10 | 20 | 41 | 82 |
-| strong partition key SELECT | 6 | 6 | 6 | 7 | 9 | 12 | 19 |
+| Consistency | Operation | Doc size 1k | Doc size 5k | Doc size 10k | Doc size 50k | Doc size 100k | Doc size 200k | Doc size 400k |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Eventual | point read | 1 | 1 | 2 | 5 | 10 | 20 | 41 |
+| Eventual | partiion key SELECT | 3 | 3 | 3 | 4 | 5 | 6 | 10 |
+| Session | point read | 1 | 1 | 2 | 5 | 10 | 20 | 41 |
+| Session | partition key SELECT | 3 | 3 | 3 | 4 | 7 | 10 | 17 |
+| Bounded Staleness | point read | 2 | 3 | 3 | 10 | 20 | 41 | 82 |
+| Bounded Staleness | partition key SELECT | 6 | 6 | 6 | 7 | 9 | 12 | 19 |
+| Strong | point read | 2 | 3 | 3 | 10 | 20 | 41 | 82 |
+| Strong | partition key SELECT | 6 | 6 | 6 | 7 | 9 | 12 | 19 |
 
 ![Point read vs partition key RU consumption across all consistency levels](Point%20read%20and%20partition%20key%20RU%20comparison.png)
 
