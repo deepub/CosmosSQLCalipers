@@ -42,7 +42,7 @@ The Cosmos SQL API provides two ways to perform read operations.
 | Consistency | Operation | Doc size 1k | Doc size 5k | Doc size 10k | Doc size 50k | Doc size 100k | Doc size 200k | Doc size 400k |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Eventual | point read | 1 | 1 | 2 | 5 | 10 | 20 | 41 |
-| Eventual | partiion key SELECT | 3 | 3 | 3 | 4 | 5 | 6 | 10 |
+| Eventual | partition key SELECT | 3 | 3 | 3 | 4 | 5 | 6 | 10 |
 | Session | point read | 1 | 1 | 2 | 5 | 10 | 20 | 41 |
 | Session | partition key SELECT | 3 | 3 | 3 | 4 | 7 | 10 | 17 |
 | Bounded Staleness | point read | 2 | 3 | 3 | 10 | 20 | 41 | 82 |
