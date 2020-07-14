@@ -34,7 +34,7 @@ Furthermore, the Cosmos capacity calculator  does not help in the correct cost e
  ![Cosmos capacity calculator](Cosmos%20Capacity%20Calculator.png)
 
 ## Estimates vs actuals
-Let us start from an initial baseline consisting of a Cosmos account set up with the following:
+Let us start from an initial baseline consisting of a Cosmos account set up with the following topology. This would be reasonable to consider for a production deployment. Please note that I've kept the reads/sec/region artificially low to keep the focus on writes:
 - SQL API
 - Session consistency
 - 2 Regions
@@ -48,7 +48,7 @@ Let us start from an initial baseline consisting of a Cosmos account set up with
 ### Cost estimate for update operations
 ![Cost estimate for updates](cost_estimate_for_update_ops.png)
 
-For update heavy OLTP use cases, the cost difference comes to be 734.89 USD/month. That's a difference of 125.97% over the estimated cost. 
+**For update heavy OLTP use cases, the cost difference comes to be 734.89 USD/month. That's a difference of 125.97% over the estimated cost** 
 
 ### Read operations
 The Cosmos SQL API provides two ways to perform read operations.
