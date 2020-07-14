@@ -33,6 +33,23 @@ Provide commentary on the RU consumption pattern for this test run. Please refer
 Furthermore, the Cosmos capacity calculator  does not help in the correct cost estimation since the writes/sec/region only accounts for document creation. Given that replace/upsert is 2x the cost of a create/delete, we can make the case that replace or upsert/sec/region should be called out separately.
  ![Cosmos capacity calculator](Cosmos%20Capacity%20Calculator.png)
 
+## Estimates vs actuals
+Let us start from an initial baseline consisting of a Cosmos account set up with the following:
+- SQL API
+- Session consistency
+- 2 Regions
+- Multi-region writes disabled
+- reads/sec/region = 1
+- writes/sec/region = 1000
+
+### Cost estimate for create/delete operations
+![Cost estimate for creates](cost_estimate_for_CD_ops.png)
+
+### Cost estimate for update operations
+![Cost estimate for updates](cost_estimate_for_update_ops.png)
+
+For update heavy OLTP use cases, the cost difference comes to be 734.89 USD/month. That's a difference of 125.97% over the estimated cost. 
+
 ### Read operations
 The Cosmos SQL API provides two ways to perform read operations.
 - Point reads. Supposed to be more efficient both in terms of latency and RU consumption. A document of size <= 1KB will consume 1 RU. 
