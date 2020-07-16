@@ -18,14 +18,14 @@ mvn clean install
 This section provides the latest updates
 
 #### Cosmos SQL client dependency
-CosmosSQLCalipers relies on the azure-cosmos SDK. The current version is v4.0.1.
+CosmosSQLCalipers relies on the azure-cosmos SDK. The current version is v4.2.0.
 
 #### Test result links
 - [Summary analysis for test run on July 1st 2020](https://github.com/deepub/CosmosSQLCalipers/blob/master/output/analysis/all_consistency_levels_07012020/README.md) 
 - [Summary analysis for test run on June 21st 2020](https://github.com/deepub/CosmosSQLCalipers/blob/master/output/analysis/session_consistency_06212020/README.md) 
 
 ##### *v4 client*
-Project upgraded to v4.1.0. Following consistency levels are running fine:
+Project upgraded to v4.2.0. Following consistency levels are running fine:
 * STRONG
 * BOUNDED_STALENESS
 * SESSION
