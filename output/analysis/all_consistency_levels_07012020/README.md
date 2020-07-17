@@ -48,7 +48,7 @@ Let us start from an initial baseline consisting of a Cosmos account set up with
 ### Cost estimate for update operations
 ![Cost estimate for updates](cost_estimate_for_update_ops.png)
 
-**For update heavy OLTP use cases, the cost difference comes to be 734.89 USD/month. That's a difference of 125.97% over the estimated cost** 
+**For 100% update based OLTP use cases, the cost difference comes to be 734.89 USD/month. That's a difference of 125.97% over the estimated cost.** 
 
 ### Read operations
 The Cosmos SQL API provides two ways to perform read operations.
