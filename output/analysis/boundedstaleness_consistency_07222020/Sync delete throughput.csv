@@ -1,0 +1,8 @@
+payload,count,mean_rate,m1_rate,m5_rate,m15_rate,rate_unit
+payload_1k,100,1.505396,3.662587,7.519935,8.476892,events/second
+payload_5k,100,3.526274,14.330626,18.710140,19.560457,events/second
+payload_10k,100,2.230857,9.326360,14.647901,15.793755,events/second
+payload_50k,100,1.795453,8.691964,16.929634,18.919189,events/second
+payload_100k,100,0.894153,1.921278,7.304002,9.125395,events/second
+payload_200k,100,0.431778,0.155920,2.576249,4.114418,events/second
+payload_400k,100,0.250899,0.006903,0.792579,1.749645,events/second
