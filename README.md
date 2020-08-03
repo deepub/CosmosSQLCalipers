@@ -94,6 +94,7 @@ SQL API workflows executed
     1. replaceItem()
     1. deleteItem()
 1. SQL_ALL
+    1. Invokes all async and sync ops
 
 
 ## Instructions
