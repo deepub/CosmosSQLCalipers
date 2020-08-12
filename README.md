@@ -11,6 +11,7 @@ This enables developers to get a preview into the overall scalability, response 
 
 ## Building
 ````
+mvn compile
 mvn clean install
 ````
 
