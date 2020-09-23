@@ -49,6 +49,14 @@ public class LoadRunner {
                 executeWorkflow(Workflow.SYNC, Constants.CONST_OPERATION_SQL_SYNC_POINT_READ, config, true);
                 break;
 
+            case Constants.CONST_OPERATION_SQL_SYNC_READ_ALL_ITEMS:
+                executeWorkflow(Workflow.SYNC, Constants.CONST_OPERATION_SQL_SYNC_READ_ALL_ITEMS, config, true);
+                break;
+
+            case Constants.CONST_OPERATION_SQL_ASYNC_READ_ALL_ITEMS:
+                executeWorkflow(Workflow.ASYNC, Constants.CONST_OPERATION_SQL_ASYNC_READ_ALL_ITEMS, config, true);
+                break;
+
             case Constants.CONST_OPERATION_SQL_ASYNC_UPSERT:
                 executeWorkflow(Workflow.ASYNC, Constants.CONST_OPERATION_SQL_ASYNC_UPSERT, config, true);
                 break;
@@ -156,6 +164,14 @@ public class LoadRunner {
                 sqlAsyncPointReadWorkload(asyncContainer, orderIdList, numberOfItems, metrics);
                 break;
 
+            case Constants.CONST_OPERATION_SQL_ASYNC_READ_ALL_ITEMS:
+                sqlAsyncReadAllItemsWorkload(asyncContainer, orderIdList, numberOfItems, metrics);
+                break;
+
+            case Constants.CONST_OPERATION_SQL_SYNC_READ_ALL_ITEMS:
+                sqlSyncReadAllItemsWorkload(container, orderIdList, numberOfItems, metrics);
+                break;
+
             case Constants.CONST_OPERATION_SQL_ASYNC_UPSERT:
                 sqlAsyncUpsertWorkload(asyncContainer, orderIdList, numberOfItems, metrics);
                 break;
@@ -175,6 +191,7 @@ public class LoadRunner {
             case Constants.CONST_OPERATION_ALL_SYNC_OPS:
                 sqlSyncReadWorkload(container, orderIdList, numberOfItems, metrics);
                 sqlSyncPointReadWorkload(container, orderIdList, numberOfItems, metrics);
+                sqlSyncReadAllItemsWorkload(container, orderIdList, numberOfItems, metrics);
                 sqlSyncUpsertWorkload(container, orderIdList, numberOfItems, metrics);
                 sqlSyncReplaceWorkload(container, orderIdList, numberOfItems, metrics);
                 break;
@@ -182,6 +199,7 @@ public class LoadRunner {
             case Constants.CONST_OPERATION_ALL_ASYNC_OPS:
                 sqlAsyncReadWorkload(asyncContainer, orderIdList, numberOfItems, metrics);
                 sqlAsyncPointReadWorkload(asyncContainer, orderIdList, numberOfItems, metrics);
+                sqlAsyncReadAllItemsWorkload(asyncContainer, orderIdList, numberOfItems, metrics);
                 sqlAsyncUpsertWorkload(asyncContainer, orderIdList, numberOfItems, metrics);
                 sqlAsyncReplaceWorkload(asyncContainer, orderIdList, numberOfItems, metrics);
                 break;
@@ -247,6 +265,17 @@ public class LoadRunner {
         SQLAsyncReplace sqlAsyncReplace = new SQLAsyncReplace();
         sqlAsyncReplace.execute(container, orderIdList, numberOfItems, metrics);
     }
+
+    private static void sqlSyncReadAllItemsWorkload(CosmosContainer container, List<String> orderIdList, int numberOfItems, MetricRegistry metrics ) {
+        SQLSyncReadAllItems sqlSyncReadAllItems = new SQLSyncReadAllItems();
+        sqlSyncReadAllItems.execute(container, orderIdList, numberOfItems, metrics);
+    }
+
+    private static void sqlAsyncReadAllItemsWorkload(CosmosAsyncContainer container, List<String> orderIdList, int numberOfItems, MetricRegistry metrics ) {
+        SQLAsyncReadAllItems sqlAsyncReadAllItems = new SQLAsyncReadAllItems();
+        sqlAsyncReadAllItems.execute(container, orderIdList, numberOfItems, metrics);
+    }
+
 
     private static CosmosDatabase getDB(CosmosClient client, String database) {
         CosmosDatabaseResponse databaseResponse = null;

@@ -9,12 +9,6 @@ CosmosSQLCalipers is a basic Cosmos SQL API benchmarking utility. It enables dev
 
 This enables developers to get a preview into the overall scalability, response times and cost considerations when evaluating Cosmos SQL API. 
 
-## Building
-````
-mvn compile
-mvn clean install
-````
-
 ## News
 This section provides the latest updates
 
@@ -27,7 +21,7 @@ CosmosSQLCalipers relies on the azure-cosmos SDK. The current version is v4.3.0.
 - [Summary analysis for test run on June 21st 2020](https://github.com/deepub/CosmosSQLCalipers/blob/master/output/analysis/session_consistency_06212020/README.md) 
 
 ##### *v4 client*
-Project upgraded to v4.3.0. Following consistency levels are running fine:
+Project upgraded to v4.5.0. Following consistency levels are running fine:
 * STRONG
 * BOUNDED_STALENESS
 * SESSION
@@ -80,6 +74,10 @@ SQL API workflows executed
     1. createItem()
     1. readItem()
     1. deleteItem()
+1. SQL_ASYNC_READ_ALL_ITEMS and SQL_SYNC_READ_ALL_ITEMS options
+    1. createItem()
+    1. readAllItems()
+    1. deleteItem()
 1. SQL_ASYNC_UPSERT and SQL_SYNC_UPSERT options
     1. createItem()
     1. upsertItem()
@@ -92,6 +90,7 @@ SQL API workflows executed
     1. createItem()
     1. queryItem()
     1. readItem()
+    1. readAllItems()
     1. upsertItem()
     1. replaceItem()
     1. deleteItem()
@@ -128,10 +127,10 @@ usage: Cosmos DB SQL Benchmark
                                         be sent to the appropriate reporter
 ````
 
-## Example
+## Building and running
 
 ````
-mvn compile
+mvn clean package
 mvn exec:java -Dexec.mainClass="com.cosmoscalipers.Measure" -Dexec.cleanupDaemonThreads=false -Dexec.args="--hostname https://youraccount.documents.azure.com:443/ --database demo --collection orders --key <your account key> --numberofdocs 1000 --payloadSize 500 --consistencylevel SESSION --provisionedrus 400 --maxpoolsize 100 --maxretryattempts 10 --maxretrywaittimeinseconds 1 --operation SQL_ALL --reporter CONSOLE"
 ````
 

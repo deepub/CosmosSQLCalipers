@@ -30,6 +30,8 @@ public class Constants {
     public static final String CONST_OPERATION_SQL_ASYNC_UPSERT = "SQL_ASYNC_UPSERT";
     public static final String CONST_OPERATION_SQL_SYNC_REPLACE = "SQL_SYNC_REPLACE";
     public static final String CONST_OPERATION_SQL_ASYNC_REPLACE = "SQL_ASYNC_REPLACE";
+    public static final String CONST_OPERATION_SQL_SYNC_READ_ALL_ITEMS = "SQL_SYNC_READ_ALL_ITEMS";
+    public static final String CONST_OPERATION_SQL_ASYNC_READ_ALL_ITEMS = "SQL_ASYNC_READ_ALL_ITEMS";
 
     public static final String CONST_CONSISTENCY_LEVEL_STRONG = "STRONG";
     public static final String CONST_CONSISTENCY_LEVEL_BOUNDED_STALENESS = "BOUNDED_STALENESS";
