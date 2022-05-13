@@ -22,7 +22,7 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.11</version>
+      <version>4.13.2</version>
       <scope>test</scope>
     </dependency>
 
@@ -30,7 +30,7 @@
     <dependency>
       <groupId>com.azure</groupId>
       <artifactId>azure-cosmos</artifactId>
-      <version>4.5.0</version>
+      <version>4.29.1</version>
     </dependency>
 
     <!-- https://mvnrepository.com/artifact/commons-cli/commons-cli -->

@@ -125,6 +125,8 @@ usage: Cosmos DB SQL Benchmark
                                         container is created
     --reporter                          CONSOLE or CSV. The results of the test will
                                         be sent to the appropriate reporter
+    --deleteContainer                   Optional. Defaults to false. Delete and recreate
+                                        the container or not(Y/N) or (true/false)                                    
 ````
 
 ## Building and running

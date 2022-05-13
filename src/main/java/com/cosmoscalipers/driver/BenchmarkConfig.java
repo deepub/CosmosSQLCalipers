@@ -17,6 +17,8 @@ public class BenchmarkConfig {
     private String operation;
     private String reporter;
 
+    private boolean deleteContainer;
+
     public String getHost() {
         return host;
     }
@@ -120,4 +122,9 @@ public class BenchmarkConfig {
     public void setReporter(String reporter) {
         this.reporter = reporter;
     }
+
+    public boolean isDeleteContainer() { return deleteContainer; }
+
+    public void setDeleteContainer(boolean deleteContainer) { this.deleteContainer = deleteContainer; }
+
 }

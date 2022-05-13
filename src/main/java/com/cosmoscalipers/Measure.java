@@ -5,6 +5,7 @@ import com.cosmoscalipers.driver.BenchmarkConfig;
 import com.cosmoscalipers.driver.Constants;
 import com.cosmoscalipers.driver.LoadRunner;
 import org.apache.commons.cli.*;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,8 +43,10 @@ public class Measure
          * --maxretrywaittimeinseconds 1
          * --operation SQL_ALL
          * --reporter CONSOLE
+         * --deleteContainer true
          * Examples
-         * --hostname <your cosmos account> --database demo --collection orders --key <your cosmos account primary key> --numberofdocs 1000 --payloadSize 500 --consistencylevel SESSION --provisionedrus 400 --maxpoolsize 100 --maxretryattempts 10 --maxretrywaittimeinseconds 1 --operation SQL_ALL --reporter CONSOLE
+         * --hostname <your cosmos account> --database demo --collection orders --key <your cosmos account primary key> --numberofdocs 1000 --payloadSize 500
+         *      --consistencylevel SESSION --provisionedrus 400 --maxpoolsize 100 --maxretryattempts 10 --maxretrywaittimeinseconds 1 --operation SQL_ALL --reporter CONSOLE --deleteContainer false
          */
 
         Options commandLineOptions = new Options();
@@ -60,7 +63,8 @@ public class Measure
         commandLineOptions.addOption( Option.builder().longOpt(Constants.CONST_OPTION_MAX_RETRY_ATTEMPTS).required(true).hasArg().desc("Max retry attempts when backpressure is encountered").build()  );
         commandLineOptions.addOption( Option.builder().longOpt(Constants.CONST_OPTION_MAX_RETRY_WAIT_TIME_IN_SECONDS).required(true).hasArg().desc("Max retry wait time in seconds").build()  );
         commandLineOptions.addOption( Option.builder().longOpt(Constants.CONST_OPTION_OPERATION).required(false).hasArg().desc("Primary operation being exercised").build()  );
-        commandLineOptions.addOption( Option.builder().longOpt(Constants.CONST_OPTION_REPORTER).required(false).hasArg().desc("Primary operation being exercised").build()  );
+        commandLineOptions.addOption( Option.builder().longOpt(Constants.CONST_OPTION_REPORTER).required(false).hasArg().desc("Generate report").build()  );
+        commandLineOptions.addOption( Option.builder().longOpt(Constants.CONST_OPTION_DELETECONTAINER).required(false).hasArg().desc("Delete and recreate the container or not(Y/N) or (true/false)?").build()  );
 
         CommandLineParser parser = new DefaultParser();
         CommandLine commandLine = null;
@@ -85,6 +89,7 @@ public class Measure
         int numberOfItems = Integer.parseInt(commandLine.getOptionValue(Constants.CONST_OPTION_NUMBER_OF_DOCS));
         int payloadSize = Integer.parseInt(commandLine.getOptionValue(Constants.CONST_OPTION_PAYLOAD_SIZE));
         int provisionedRUs = Integer.parseInt(commandLine.getOptionValue(Constants.CONST_OPTION_PROVISIONED_RUS));
+        boolean isDeleteContainer = false;
 
         String hostName = commandLine.getOptionValue(Constants.CONST_OPTION_HOSTNAME);
         String databaseName = commandLine.getOptionValue(Constants.CONST_OPTION_DATABASE);
@@ -93,6 +98,18 @@ public class Measure
         String consistencyOption = commandLine.getOptionValue(Constants.CONST_OPTION_CONSISTENCY_LEVEL);
         String operation = commandLine.getOptionValue(Constants.CONST_OPTION_OPERATION);
         String reporter = commandLine.getOptionValue(Constants.CONST_OPTION_REPORTER);
+        String deleteContainer = commandLine.getOptionValue(Constants.CONST_DELETE_CONTAINER);
+
+        if (deleteContainer == null || deleteContainer.isEmpty() ||
+                    deleteContainer.equalsIgnoreCase("N") ||
+                    deleteContainer.equalsIgnoreCase("false")
+        ) {
+            isDeleteContainer = false;
+        } else if(deleteContainer.equalsIgnoreCase("true") ||
+                deleteContainer.equalsIgnoreCase("Y")
+        ) {
+            isDeleteContainer = true;
+        }
 
         if(operation == null || operation.isEmpty() || operation.isBlank()) {
             operation = Constants.CONST_OPERATION_SQL_ALL;
@@ -137,6 +154,7 @@ public class Measure
         config.setRetryWaitTimeInSeconds(retryWaitTimeInSeconds);
         config.setOperation(operation);
         config.setReporter(reporter.toUpperCase());
+        config.setDeleteContainer(isDeleteContainer);
 
         System.out.println("host name : " + config.getHost());
         System.out.println("database : " + config.getDatabaseId());

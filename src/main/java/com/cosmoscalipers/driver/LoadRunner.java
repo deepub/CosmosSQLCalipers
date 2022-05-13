@@ -34,56 +34,56 @@ public class LoadRunner {
         switch(operation) {
 
             case Constants.CONST_OPERATION_SQL_ASYNC_PARTITION_KEY_READ:
-                executeWorkflow(Workflow.ASYNC, Constants.CONST_OPERATION_SQL_ASYNC_PARTITION_KEY_READ, config, true);
+                executeWorkflow(Workflow.ASYNC, Constants.CONST_OPERATION_SQL_ASYNC_PARTITION_KEY_READ, config);
                 break;
 
             case Constants.CONST_OPERATION_SQL_SYNC_PARTITION_KEY_READ:
-                executeWorkflow(Workflow.SYNC, Constants.CONST_OPERATION_SQL_SYNC_PARTITION_KEY_READ, config, true);
+                executeWorkflow(Workflow.SYNC, Constants.CONST_OPERATION_SQL_SYNC_PARTITION_KEY_READ, config);
                 break;
 
             case Constants.CONST_OPERATION_SQL_ASYNC_POINT_READ:
-                executeWorkflow(Workflow.ASYNC, Constants.CONST_OPERATION_SQL_ASYNC_POINT_READ, config, true);
+                executeWorkflow(Workflow.ASYNC, Constants.CONST_OPERATION_SQL_ASYNC_POINT_READ, config);
                 break;
 
             case Constants.CONST_OPERATION_SQL_SYNC_POINT_READ:
-                executeWorkflow(Workflow.SYNC, Constants.CONST_OPERATION_SQL_SYNC_POINT_READ, config, true);
+                executeWorkflow(Workflow.SYNC, Constants.CONST_OPERATION_SQL_SYNC_POINT_READ, config);
                 break;
 
             case Constants.CONST_OPERATION_SQL_SYNC_READ_ALL_ITEMS:
-                executeWorkflow(Workflow.SYNC, Constants.CONST_OPERATION_SQL_SYNC_READ_ALL_ITEMS, config, true);
+                executeWorkflow(Workflow.SYNC, Constants.CONST_OPERATION_SQL_SYNC_READ_ALL_ITEMS, config);
                 break;
 
             case Constants.CONST_OPERATION_SQL_ASYNC_READ_ALL_ITEMS:
-                executeWorkflow(Workflow.ASYNC, Constants.CONST_OPERATION_SQL_ASYNC_READ_ALL_ITEMS, config, true);
+                executeWorkflow(Workflow.ASYNC, Constants.CONST_OPERATION_SQL_ASYNC_READ_ALL_ITEMS, config);
                 break;
 
             case Constants.CONST_OPERATION_SQL_ASYNC_UPSERT:
-                executeWorkflow(Workflow.ASYNC, Constants.CONST_OPERATION_SQL_ASYNC_UPSERT, config, true);
+                executeWorkflow(Workflow.ASYNC, Constants.CONST_OPERATION_SQL_ASYNC_UPSERT, config);
                 break;
 
             case Constants.CONST_OPERATION_SQL_SYNC_UPSERT:
-                executeWorkflow(Workflow.SYNC, Constants.CONST_OPERATION_SQL_SYNC_UPSERT, config, true);
+                executeWorkflow(Workflow.SYNC, Constants.CONST_OPERATION_SQL_SYNC_UPSERT, config);
                 break;
 
             case Constants.CONST_OPERATION_SQL_ASYNC_REPLACE:
-                executeWorkflow(Workflow.ASYNC, Constants.CONST_OPERATION_SQL_ASYNC_REPLACE, config, true);
+                executeWorkflow(Workflow.ASYNC, Constants.CONST_OPERATION_SQL_ASYNC_REPLACE, config);
                 break;
 
             case Constants.CONST_OPERATION_SQL_SYNC_REPLACE:
-                executeWorkflow(Workflow.SYNC, Constants.CONST_OPERATION_SQL_SYNC_REPLACE, config, true);
+                executeWorkflow(Workflow.SYNC, Constants.CONST_OPERATION_SQL_SYNC_REPLACE, config);
                 break;
 
             case Constants.CONST_OPERATION_ALL_SYNC_OPS:
-                executeWorkflow(Workflow.SYNC, Constants.CONST_OPERATION_ALL_SYNC_OPS, config, true);
+                executeWorkflow(Workflow.SYNC, Constants.CONST_OPERATION_ALL_SYNC_OPS, config);
                 break;
 
             case Constants.CONST_OPERATION_ALL_ASYNC_OPS:
-                executeWorkflow(Workflow.ASYNC, Constants.CONST_OPERATION_ALL_ASYNC_OPS, config, true);
+                executeWorkflow(Workflow.ASYNC, Constants.CONST_OPERATION_ALL_ASYNC_OPS, config);
                 break;
 
             case Constants.CONST_OPERATION_SQL_ALL:
-                executeWorkflow(Workflow.SYNC, Constants.CONST_OPERATION_ALL_SYNC_OPS, config, true);
-                executeWorkflow(Workflow.ASYNC, Constants.CONST_OPERATION_ALL_ASYNC_OPS, config, false);
+                executeWorkflow(Workflow.SYNC, Constants.CONST_OPERATION_ALL_SYNC_OPS, config);
+                executeWorkflow(Workflow.ASYNC, Constants.CONST_OPERATION_ALL_ASYNC_OPS, config);
 
         }
 
@@ -91,7 +91,7 @@ public class LoadRunner {
 
     }
 
-    private static void executeWorkflow(Workflow workflow, String operation, BenchmarkConfig config, boolean isContainerDeleted) {
+    private static void executeWorkflow(Workflow workflow, String operation, BenchmarkConfig config) {
 
         int maxPoolSize = config.getMaxPoolSize();
         int maxRetryAttempts = config.getMaxRetryAttempts();
@@ -105,6 +105,7 @@ public class LoadRunner {
         String collection = config.getCollectionId();
         String masterKey = config.getMasterKey();
         ConsistencyLevel consistencyLevel = config.getConsistencyLevel();
+        boolean isContainerDeleted = config.isDeleteContainer();
 
         SyncBootstrap syncBootstrap = new SyncBootstrap();
         AsyncBootstrap asyncBootstrap = new AsyncBootstrap();

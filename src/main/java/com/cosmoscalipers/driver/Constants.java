@@ -15,6 +15,7 @@ public class Constants {
     public static final String CONST_OPTION_OPERATION = "operation";
     public static final String CONST_OPTION_PAYLOAD_SIZE = "payloadSize";
     public static final String CONST_OPTION_REPORTER = "reporter";
+    public static final String CONST_OPTION_DELETECONTAINER = "deleteContainer";
 
     public static final int CONST_MINIMUM_PAYLOAD_SIZE = 800;
     public static final String CONST_PARTITION_KEY = "/payloadId";
@@ -42,5 +43,6 @@ public class Constants {
     public static final String CONST_CONSOLEREPORTER = "CONSOLE";
     public static final String CONST_CSVREPORTER = "CSV";
     public static final String CONST_CSVFILES_LOCATION = "output/logs/";
+    public static final String CONST_DELETE_CONTAINER = "deleteContainer";
 
 }
