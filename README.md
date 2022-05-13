@@ -133,6 +133,6 @@ usage: Cosmos DB SQL Benchmark
 
 ````
 mvn clean package
-mvn exec:java -Dexec.mainClass="com.cosmoscalipers.Measure" -Dexec.cleanupDaemonThreads=false -Dexec.args="--hostname https://youraccount.documents.azure.com:443/ --database demo --collection orders --key <your account key> --numberofdocs 1000 --payloadSize 500 --consistencylevel SESSION --provisionedrus 400 --maxpoolsize 100 --maxretryattempts 10 --maxretrywaittimeinseconds 1 --operation SQL_ALL --reporter CONSOLE"
+mvn exec:java -Dexec.mainClass="com.cosmoscalipers.Measure" -Dexec.cleanupDaemonThreads=false -Dexec.args="--hostname https://youraccount.documents.azure.com:443/ --database demo --collection orders --key <your account key> --numberofdocs 1000 --payloadSize 500 --consistencylevel SESSION --provisionedrus 400 --maxpoolsize 100 --maxretryattempts 10 --maxretrywaittimeinseconds 1 --operation SQL_ALL --reporter CONSOLE --deleteContainer false"
 ````
 
